@@ -1,0 +1,15 @@
+/* styles.css */
+.popper {
+  background: white;
+  border: 2px solid #4CAF50; /* 테두리 색상을 초록색으로 설정 */
+  padding: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  border-radius: 4px; /* 모서리를 둥글게 만듦 */
+}
+
+.popper-content {
+  font-size: 14px;
+  font-weight: bold; /* 텍스트를 굵게 만듦 */
+  color: #4CAF50; /* 텍스트 색상을 초록색으로 설정 */
+}

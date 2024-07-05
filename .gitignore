@@ -1,0 +1,14 @@
+.venv
+.env
+**/ocr_key.json
+__pycache__
+
+# data
+uploaded_files
+txt_data
+
+# package
+package-lock.json
+
+# node_modules
+node_modules
