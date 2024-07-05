@@ -1,12 +1,12 @@
-from fastapi import FastAPI, HTTPException, Form, Body
+from fastapi import FastAPI, HTTPException, Form, Body, UploadFile, File
 from fastapi import Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
-from ocr import pdf_stream_to_jpg, image_to_text, pdf_to_text
+from ocr.ocr import pdf_stream_to_jpg, image_to_text, pdf_to_text
 from google.cloud import vision
 from dotenv import load_dotenv
 import json, os, requests
-from search import search_query
+from search.search import search_query
 from authlib.integrations.starlette_client import OAuth
 
 app = FastAPI()
@@ -106,6 +106,24 @@ async def upload_stream(request: Request):
 
     except Exception as e:
         print(f"Error in /upload: {str(e)}")
+
+@app.post("/ocr/ocrTest")
+async def upload_stream(request: Request, file: UploadFile = File(...)):
+    try:
+        pdf_stream_data = await file.read()
+    
+        # PDF 스트림 데이터를 JPEG 이미지로 변환
+        jpg_image_data = pdf_stream_to_jpg(pdf_stream_data)
+    
+        # 이미지 데이터를 텍스트로 변환
+        extracted_data = image_to_text(jpg_image_data)
+
+
+        return JSONResponse(content={"resultCode": 200, "data": {"titles": payload.get("title"), "texts": payload.get("text")}}) 
+
+    except Exception as e:
+        print(f"Error in /upload: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
     
 @app.post("/keyword")
 async def getKeyword(data: dict = Body(...)):

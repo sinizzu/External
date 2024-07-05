@@ -1,7 +1,6 @@
-
 from google.cloud import vision
 from fastapi import HTTPException
-from pdf2image import convert_from_bytes, convert_from_path
+from pdf2image import convert_from_path, convert_from_bytes 
 import io, os
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.docstore.document import Document
