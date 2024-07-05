@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api import paper_endpoints, trans_endpoints, ocr_endpoints, search_endpoints
+from app.api import paper_endpoints, trans_endpoints, ocr_endpoints, keyword_endpoints
 from app.core.config import settings
 
 app = FastAPI(

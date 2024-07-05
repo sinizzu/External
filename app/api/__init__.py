@@ -2,4 +2,4 @@
 from .paper import endpoints as paper_endpoints
 from .trans import endpoints as trans_endpoints
 from .ocr import endpoints as ocr_endpoints
-from .search import endpoints as search_endpoints
+from .keyword import endpoints as keyword_endpoints
