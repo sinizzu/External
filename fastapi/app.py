@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import json, os, requests
 from search.search import search_query
 from authlib.integrations.starlette_client import OAuth
+from weaviatedb.weaviate_utils import client, get_all_schema_names, delete_class, save_to_weaviate, get_class_data, get_texts_by_title
 
 app = FastAPI()
 load_dotenv()
@@ -25,7 +26,24 @@ oauth.register(
     redirect_uri='http://<your_ec2_domain>/auth/callback',
     client_kwargs={'scope': 'openid profile email'},
 )
-
+@app.get('/getSchemas')
+async def get_schemas():
+    return get_all_schema_names()
+@app.post('/deleteSchema')
+async def delete_schema(class_name):
+    delete_class(class_name)
+    
+@app.get("/getClassData/{class_name}")
+async def get_class_data_endpoint(class_name: str, max_text_length: int = 50):
+    try:
+        data = get_class_data(class_name, max_text_length)
+        if isinstance(data, str):
+            raise HTTPException(status_code=400, detail=data)
+        return {"class_name": class_name, "data": data}
+    except Exception as e:
+        print(f"Error in /getClassData: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
 @app.get('/auth')
 async def auth(request: Request):
     redirect_uri = 'http://<your_ec2_domain>/auth/callback'
@@ -49,8 +67,6 @@ global uploaded_file_path
 @app.post("/search", response_class=HTMLResponse)
 async def search(query: str = Form(...)):
     return await search_query(query)
-
-
 
     
 @app.post("/ocr/ocrPdf")
@@ -108,8 +124,16 @@ async def upload_stream(request: Request):
         print(f"Error in /upload: {str(e)}")
 
 @app.post("/ocr/ocrTest")
-async def upload_stream(request: Request, file: UploadFile = File(...)):
+async def upload_stream(file: UploadFile = File(...), title: str = Form(...)):
     try:
+        # Weaviate에서 title이 존재하는지 확인
+        existing_data = get_texts_by_title("Document", title)
+        
+        # title이 존재하면 해당 데이터를 반환
+        if isinstance(existing_data, dict):
+            return JSONResponse(content={"resultCode": 200, 
+                                         "data": existing_data})
+        # PDF 파일 읽기
         pdf_stream_data = await file.read()
     
         # PDF 스트림 데이터를 JPEG 이미지로 변환
@@ -117,14 +141,22 @@ async def upload_stream(request: Request, file: UploadFile = File(...)):
     
         # 이미지 데이터를 텍스트로 변환
         extracted_data = image_to_text(jpg_image_data)
+        
+        # weaviate 컬렉션 확인 및 저장
+        save_result = save_to_weaviate(title, extracted_data.get("texts"))
+        # JSON 응답 반환
+        return JSONResponse(content={"resultCode": 200, 
+                                     "data": {"title": title, 
+                                              "texts": extracted_data.get("texts")}, 
+                                     "save_result": save_result})
 
-
-        return JSONResponse(content={"resultCode": 200, "data": {"titles": payload.get("title"), "texts": payload.get("text")}}) 
 
     except Exception as e:
-        print(f"Error in /upload: {str(e)}")
+        print(f"Error in /ocrTest: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+   
+
 @app.post("/keyword")
 async def getKeyword(data: dict = Body(...)):
     try:

@@ -4,7 +4,6 @@ from pdf2image import convert_from_path, convert_from_bytes
 import io, os
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.docstore.document import Document
-from google.cloud import vision
 
 # Google Cloud Vision API 인증을 위한 환경 변수 설정
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./ocr_key.json"
