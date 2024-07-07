@@ -1,0 +1,219 @@
+import requests
+import os
+import sys
+import re
+from typing import List, Dict, Any
+import feedparser
+from bs4 import BeautifulSoup
+from fastapi import FastAPI, Request, HTTPException, Query, Body
+from dotenv import load_dotenv
+import weaviate
+from weaviate.classes.query import Filter, MetadataQuery
+
+import warnings
+from concurrent.futures import ThreadPoolExecutor
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import torch
+from datetime import datetime
+from langchain.text_splitter import CharacterTextSplitter
+import concurrent.futures
+
+# 경고 메시지 무시
+warnings.filterwarnings("ignore", category=FutureWarning, module='huggingface_hub')
+
+load_dotenv()
+FASTAPI_URL1 = os.getenv('FASTAPI_URL1')
+FASTAPI_URL2 = os.getenv('FASTAPI_URL2')
+
+# weaviate 변수 가져오기
+URL = os.getenv("WCS_URL")
+APIKEY = os.getenv("WCS_API_KEY")
+HUGGING = os.getenv("HUGGINGFACE_APIKEY")
+
+client = weaviate.connect_to_wcs(
+    cluster_url=URL,
+    auth_credentials=weaviate.auth.AuthApiKey(APIKEY),
+    headers={'X-HuggingFace-Api-Key': HUGGING},
+    skip_init_checks=True
+)
+
+# 연결 확인
+if client.is_ready():
+    print("Weaviate Cloud에 성공적으로 연결되었습니다.")
+else:
+    print("Weaviate Cloud에 연결할 수 없습니다.")
+
+collection = client.collections.get("Paper")
+
+app = FastAPI()
+
+# 2. Hugging Face 요약 모델 설정
+model_name = "facebook/bart-large-cnn"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+# cuda == gpu
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
+
+@app.get('/')
+async def health_check():
+    return "OK"
+
+
+# 구어체 기반 weaviate 검색 
+# searchword = 'Why Deepfake Videos Are Really Visible'
+@app.get('/getColl')
+async def getColl(searchword: str):
+    result = []
+    # print(searchword)
+    result = []
+    questions  = client.collections.get("Paper")
+    response = questions.query.near_text(
+        query=searchword,
+        limit=10
+    )
+    res = []
+    # 오브젝트가 있으면
+    if response.objects:
+        for object in response.objects:
+            res.append(object.properties) # 반환 데이터에 추가
+        return {"resultCode" : 200, "data" : res}
+    else:
+        return {"resultCode" : 404, "data" : response}
+
+
+@app.get('/dbpiasearch')
+async def get_trend_keywords():
+    # 요청할 URL
+    url = 'https://www.dbpia.co.kr/curation/best-node/top/20?bestCode=ND'
+
+    # requests를 사용하여 JSON 데이터 가져오기
+    response = requests.get(url)
+    response.raise_for_status()  # 오류 체크
+
+    # JSON 데이터 파싱
+    data = response.json()
+
+    # node_id 값을 추출하고 전체 URL 생성
+    base_url = 'https://www.dbpia.co.kr/journal/articleDetail?nodeId='
+    urls = [base_url + item['node_id'] for item in data]
+    
+    # 각 URL에서 해시태그 추출
+    all_keywords = []
+    for url in urls:
+        keywords = extract_keywords(url)
+        filtered_keywords = filter_keywords(keywords)
+        all_keywords.extend(filtered_keywords)
+        # print(f"Extracted keywords from {url}: {filtered_keywords}")
+
+    if all_keywords:
+            return {"resultCode" : 200, "keywords" : all_keywords}
+    else:
+        return {"resultCode" : 404, "keywords" : all_keywords}
+
+def extract_keywords(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # 오류 체크
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # 클래스 이름이 'keywordWrap__keyword'인 요소 찾기
+        keywords = [tag.text.strip() for tag in soup.find_all(class_='keywordWrap__keyword')]
+        # 불필요한 첫 글자(#) 제거
+        keywords = [keyword[1:] if keyword.startswith("#") else keyword for keyword in keywords]
+        return keywords
+    except Exception as e:
+        print(f"Error extracting keywords from {url}: {e}")
+        return []
+
+def filter_keywords(keywords):
+    filtered_keywords = []
+    for keyword in keywords:
+        # 한글이 포함된 키워드 제거
+        if re.search('[가-힣]', keyword):
+            continue
+        # 괄호 안에 한글 설명이 포함된 키워드 제거
+        if re.search(r'\([가-힣]+\)', keyword):
+            continue
+        filtered_keywords.append(keyword)
+    return filtered_keywords
+
+@app.get('/searchPopularkeyord')
+async def search_popular_keyword():
+    # dbpia API에서 인기있는 검색어 가져오기
+    response = await get_trend_keywords()
+    keywords = response.get("keywords", [])
+    
+    results = []
+    for keyword in keywords:
+        try:
+            keyword_response = requests.get(f'{FASTAPI_URL2}/getMeta?searchword={keyword}')
+            keyword_data = keyword_response.json()
+            results.append({'keyword': keyword, 'length': len(keyword_data)})
+        except Exception as e:
+            print(f'Error fetching data for keyword: {keyword}', e)
+            results.append({'keyword': keyword, 'length': 0})
+    
+    if results:
+        return {"resultCode" : 200, "data" : results}
+    else:
+        return {"resultCode" : 404, "data" : results}
+
+
+@app.post('/summarize')
+async def summarize(request: Request):
+    body = await request.json()
+    title = body.get("title", "")
+    texts = body.get("texts", [])
+
+    # 스플리터 지정
+    text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+        separator="\\n\\n",  # 분할 기준
+        chunk_size=2000,   # 청크 사이즈
+        chunk_overlap=100, # 중첩 사이즈
+    )
+
+    split_texts = text_splitter.split_text(texts)
+
+    summaries = []
+    # 요청 보내기 전의 시간 기록
+    bart_start_time = datetime.now()
+    # summary 존재 여부 확인
+    get_summary = requests.get(f"{FASTAPI_URL1}/getSummary1?title={title}")
+    res = get_summary.json().get("resultCode", "")
+    if res == 200:
+        res = get_summary.json().get("data", "")
+        summaries = res.split("\n")
+    else:
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = [executor.submit(summarize_paragraph, paragraph) for paragraph in split_texts]
+            for future in futures:
+                summaries.append(future.result())
+    # 요청 받아온 시간 기록
+    bart_end_time = datetime.now()
+    bart_time = int((bart_end_time - bart_start_time).seconds)
+    if summaries:
+        url = f"{FASTAPI_URL1}/saveSummary1"
+        summaries_string = "\n".join(summaries)
+        print(bart_time)
+        save_sum = requests.post(url, json={"title": title,"text": summaries_string})
+        get_time = requests.get(f"{FASTAPI_URL1}/getTime1?title={title}").json().get("resultCode", 0)
+        if get_time == 200:
+            bart_time = int(requests.get(f"{FASTAPI_URL1}/getTime1?title={title}").json().get("data", 0))
+        else:
+            save_time = requests.get(f"{FASTAPI_URL1}/saveTime1?title={title}&time={bart_time}")
+        return {"resultCode" : 200, "data" : summaries, "bart_time" : bart_time}
+    else:
+        return {"resultCode" : 404, "data" : summaries, "bart_time" : bart_time}
+    
+def summarize_paragraph(paragraph):
+    try:
+        inputs = tokenizer(paragraph, return_tensors="pt", max_length=1024, truncation=True).to(device)
+        summary_ids = model.generate(inputs["input_ids"], max_length=512, min_length=30, length_penalty=2.0, num_beams=4, early_stopping=True)
+        summary = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+        print(f"Summary is okey\n")
+        return summary
+    except Exception as e:
+        print(f"Error summarizing paragraph: {e}")
+        return paragraph

@@ -14,4 +14,16 @@ async def save_wea(meta_response: paper_schema.MetaResponse):
 
 @router.get("/searchKeyword")
 async def search_keyword(searchword: str):
-    return paper_service.searchKeyword(searchword)
+    return await paper_service.searchKeyword(searchword)
+
+@router.get('/getColl')
+async def getColl(searchword: str):
+    return await paper_service.getColl(searchword)    
+
+@router.get('/dbpiasearch')
+async def get_trend_keywords():
+    return await paper_service.get_trend_keywords()
+
+@router.get('/searchPopularkeyord')
+async def search_popular_keyword():
+    return await paper_service.search_popular_keyword()
