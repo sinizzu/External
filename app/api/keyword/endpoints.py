@@ -20,4 +20,4 @@ async def search(request: SearchRequest):
 
 @router.get('/wikiSearch')
 async def wiki_search(keyword: str):
-    return await keyword_extract_service.wiki_search(keyword)
+    return keyword_extract_service.wiki_search(keyword)
