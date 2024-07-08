@@ -3,6 +3,8 @@ from app.api import paper_endpoints, trans_endpoints, ocr_endpoints, keyword_end
 from app.core.config import settings
 from app.api.keyword import endpoints as search_endpoints
 from fastapi.middleware.cors import CORSMiddleware
+from app.core.scheduler import start_scheduler  
+
 
 
 JH_IP = settings.JH_IP
@@ -20,6 +22,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+start_scheduler()
 
 # Include routers
 app.include_router(paper_endpoints.router, prefix="/api/paper", tags=["paper"])
