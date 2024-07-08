@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .venv
 .env
 **/ocr_key.json
@@ -12,3 +13,10 @@ package-lock.json
 
 # node_modules
 node_modules
+=======
+# venv
+.venv
+
+# env
+.env
+>>>>>>> dev
