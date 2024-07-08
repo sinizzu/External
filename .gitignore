@@ -9,13 +9,3 @@ __pycache__
 
 # Ignore OCR key files
 **/ocr_key.json
-
-# data
-uploaded_files
-txt_data
-
-# package
-package-lock.json
-
-# node_modules
-node_modules
