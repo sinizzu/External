@@ -21,7 +21,7 @@ async def get_class_data_endpoint(class_name: str, max_text_length: int = 50):
         data = get_class_data(class_name, max_text_length)
         if isinstance(data, str):
             raise HTTPException(status_code=400, detail=data)
-        return {"class_name": class_name, "data": data}
+        return {"resultCode": 200, "className": class_name, "data": data}
     except Exception as e:
         print(f"Error in /getClassData: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

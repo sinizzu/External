@@ -1,4 +1,4 @@
-from fastapi.responses import HTMLResponse
+from fastapi.responses import JSONResponse
 import requests
 from app.core.config import settings
 
@@ -6,8 +6,7 @@ API_KEY = settings.API_KEY
 CX = settings.CX
 
 
-
-async def search_query(query: str) -> HTMLResponse:
+async def search_query(query: str) -> list:
     params = {
         "key": API_KEY,
         "cx": CX,
@@ -27,22 +26,4 @@ async def search_query(query: str) -> HTMLResponse:
                 "link": link,
             })
 
-    result_html = "<h2>Results for \"{}\":</h2><ul>".format(query)
-    for result in results:
-        result_html += "<li><a href='{}' target='_blank'>{}</a></li>".format(result['link'], result['title'])
-    result_html += "</ul>"
-
-    html_content = """
-    <html>
-    <body>
-        <h1>Google Custom Search</h1>
-        <form action="/search" method="post">
-            <input type="text" name="query" placeholder="Enter search term">
-            <input type="submit" value="Search">
-        </form>
-        {}
-    </body>
-    </html>
-    """.format(result_html)
-
-    return HTMLResponse(content=html_content)
+    return results

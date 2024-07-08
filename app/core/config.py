@@ -22,6 +22,9 @@ class Settings:
     API_KEY = os.getenv("CUSTOM_SEARCH_API")
     CX = os.getenv("GOOGLE_CX")
     
+    # IP
+    JH_IP = os.getenv("JH_IP")
+    
 
     # JWT 설정
     #JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")

@@ -23,7 +23,11 @@ else:
 def get_all_schema_names():
     schema = client.schema.get()
     class_names = [cls["class"] for cls in schema["classes"]]
-    return class_names
+    result = {
+        "resultCode": 200,
+        "data": class_names
+    }
+    return result
 
 # 클래스 삭제 함수
 def delete_class(class_name):
