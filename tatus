@@ -1,0 +1,53 @@
+[33m10d41e1[m[33m ([m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m Perf: run shell script
+[33m74042a5[m Merge pull request #13 from sinizzu/feat/#12web-search
+[33mf5187ea[m Feat: search endpoint 모듈의 라우터를 FastAPI에 포함
+[33m0c58605[m Merge pull request #11 from sinizzu/feat/#4-keyword-extract
+[33m888a00e[m Chore: wiki_search, keyword_extract develop
+[33m25205a3[m Merge pull request #9 from sinizzu/feat/#2-ocr-pdf-to-text
+[33m5e4a2c5[m Merge branch 'dev' into feat/#2-ocr-pdf-to-text
+[33m8e4a1b2[m Refacor: .gitignore 수정
+[33m34ee560[m Refactor: .gitignore 수정
+[33m0945318[m Refactor: .gitignore 수정
+[33macecb1d[m Refactor: 코드 구조 수정
+[33mcddfb29[m Refactor: delete pycahe
+[33mb147634[m Refactor: delete pycahe
+[33mf48f788[m Refactor: delete pycahe
+[33m4e9e76b[m Merge pull request #8 from sinizzu/feat/#3-search-paper
+[33mb3815ba[m Refactor: delete pycache
+[33m9ec5388[m Refactor: delete pycache
+[33me57f8e7[m Refactor: delete pycache
+[33m77bff7f[m Refactor: delete pycache
+[33m983e833[m Refactor: delete pycache
+[33m18612f0[m Refactor: delete pycache
+[33m1620a29[m Refactor: delete pycache
+[33m0052264[m Chore: 디렉토리 리팩토링 완료 및 기능 체크
+[33m65db16b[m Refactor: delete pycahe
+[33mf73112c[m Refactor: delete pycahe
+[33m8f6bdb1[m Refactor: delete pycahe
+[33mce92808[m Refactor: delete pycahe
+[33ma033673[m Refactor: delete pycahe
+[33m3dccb4a[m Refactor: delete pycahe
+[33m32147aa[m Refactor: delete pycahe
+[33m6553a13[m Refactor: delete pycahe
+[33m5dc5051[m Refactor: delete pycache
+[33m1da3ed1[m Refactor: delete pycahe
+[33m5c430d3[m Refactor: delete pycache
+[33m197446f[m Refactor: delete pycahe
+[33m39587dc[m Refactor: delete pycache
+[33mb067f59[m Refactor: delete pycache
+[33m463ab01[m Refactor: delete pycache
+[33me76efc6[m Refactor: 디렉토리 구조에 맞춰 코드 이동
+[33mb289f9a[m Chore: Merge branch 'dev' into feat/#2-ocr-pdf-to-text
+[33m0dca0f7[m Feat: Integrate OCR processing with Weaviate DB
+[33mf566682[m Feat: search api add
+[33m7c7e0fa[m Refactor: 디렉토리 명 수정 및 리드미 수정
+[33m66c4474[m Merge pull request #7 from sinizzu/chore/#6refactoring-directory
+[33m295a979[m Fix: gitignore
+[33m16d6041[m Init: dev branch create
+[33m47c55e5[m Chore: 디렉토리 리팩토링 완료 및 기능 체크
+[33m10828b5[m Chore: weaviate collection create
+[33mb8fa49a[m Refactor: Change file paths
+[33m008493b[m Chore: Remove unused files for frontend refactor
+[33ma8e4494[m Feat: OCR & pdf viewer test
+[33m70796c9[m Chore: weaviate setting
+[33m2af8a37[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Docs: Readme, issue template
