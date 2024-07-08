@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.api.keyword import endpoints as search_endpoints
 from fastapi.middleware.cors import CORSMiddleware
 
+
 JH_IP = settings.JH_IP
 
 app = FastAPI(

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
-from app.services import paper_service
+from app.services import paper_service, keyword_extract_service
 from app.schemas import paper as paper_schema
+
 
 router = APIRouter()
 
@@ -27,3 +28,7 @@ async def get_trend_keywords():
 @router.get('/searchPopularkeyord')
 async def search_popular_keyword():
     return await paper_service.search_popular_keyword()
+
+@router.get('/keywordExtract')
+async def keyword_extraction(text: str):
+    return await keyword_extract_service.keyword_extraction(text)
