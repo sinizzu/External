@@ -9,10 +9,8 @@ import re
 from bs4 import BeautifulSoup
 
 import warnings
-from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from langchain.text_splitter import CharacterTextSplitter
+
+
 
 client = get_weaviate_client()
 paperCollection = client.collections.get("Paper")
@@ -20,10 +18,7 @@ paperCollection = client.collections.get("Paper")
 # 경고 메시지 무시
 warnings.filterwarnings("ignore", category=FutureWarning, module='huggingface_hub')
 
-# 2. Hugging Face 요약 모델 설정
-model_name = "facebook/bart-large-cnn"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
 
 def getMeta(searchword: str = Query(..., description="Search term for arXiv API")) -> Dict[str, Any]:
     try:
@@ -68,7 +63,7 @@ def getMeta(searchword: str = Query(..., description="Search term for arXiv API"
 async def saveWea(meta_response: paper_schema.MetaResponse) -> paper_schema.SaveWeaResponse:
     papers = meta_response.data
     try:
-        with paperCollection.batch.fixed_size(5) as batch:
+        with paperCollection.batch.dynamic() as batch:
             for paper in papers:
                 response = paperCollection.query.fetch_objects(
                     filters=Filter.by_property("title").equal(paper.title),
@@ -120,47 +115,52 @@ def searchKeyword(searchword: str = Query(..., description="Search term for Weav
 
 # 구어체 기반 weaviate 검색 
 async def getColl(searchword: str):
-    result = []
-    response = paperCollection.query.near_text(
-        query=searchword,
-        limit=10
-    )
-    res = []
-    # 오브젝트가 있으면
-    if response.objects:
-        for object in response.objects:
-            res.append(object.properties) # 반환 데이터에 추가
-        return {"resultCode" : 200, "data" : res}
-    else:
-        return {"resultCode" : 404, "data" : response}
+    try: 
+        response = paperCollection.query.near_text(
+            query=searchword,
+            limit=10
+        )
+        res = []
+        # 오브젝트가 있으면
+        if response.objects:
+            for object in response.objects:
+                res.append(object.properties) # 반환 데이터에 추가
+            return {"resultCode" : 200, "data" : res}
+        else:
+            return {"resultCode" : 400, "data" : response}
+    except Exception as e:
+        return {"resultCode": 500, "data": str(e)}
 
 # dbpia 인기키워드 검색
 async def get_trend_keywords():
+    try:
     # 요청할 URL
-    url = 'https://www.dbpia.co.kr/curation/best-node/top/20?bestCode=ND'
+        url = 'https://www.dbpia.co.kr/curation/best-node/top/20?bestCode=ND'
 
-    # requests를 사용하여 JSON 데이터 가져오기
-    response = requests.get(url)
-    response.raise_for_status()  # 오류 체크
+        # requests를 사용하여 JSON 데이터 가져오기
+        response = requests.get(url)
+        response.raise_for_status()  # 오류 체크
 
-    # JSON 데이터 파싱
-    data = response.json()
+        # JSON 데이터 파싱
+        data = response.json()
 
-    # node_id 값을 추출하고 전체 URL 생성
-    base_url = 'https://www.dbpia.co.kr/journal/articleDetail?nodeId='
-    urls = [base_url + item['node_id'] for item in data]
-    
-    # 각 URL에서 해시태그 추출
-    all_keywords = []
-    for url in urls:
-        keywords = extract_keywords(url)
-        filtered_keywords = filter_keywords(keywords)
-        all_keywords.extend(filtered_keywords)
+        # node_id 값을 추출하고 전체 URL 생성
+        base_url = 'https://www.dbpia.co.kr/journal/articleDetail?nodeId='
+        urls = [base_url + item['node_id'] for item in data]
+        
+        # 각 URL에서 해시태그 추출
+        all_keywords = []
+        for url in urls:
+            keywords = extract_keywords(url)
+            filtered_keywords = filter_keywords(keywords)
+            all_keywords.extend(filtered_keywords)
 
-    if all_keywords:
-            return {"resultCode" : 200, "keywords" : all_keywords}
-    else:
-        return {"resultCode" : 404, "keywords" : all_keywords}
+        if all_keywords:
+                return {"resultCode" : 200, "keywords" : all_keywords}
+        else:
+            return {"resultCode" : 400, "keywords" : all_keywords}
+    except Exception as e:
+        return {"resultCode": 500, "data": str(e)}
 
 def extract_keywords(url):
     try:
@@ -189,7 +189,8 @@ def filter_keywords(keywords):
         filtered_keywords.append(keyword)
     return filtered_keywords
 
-# 인기 검색어를 Weaviate에서 검색
+
+# 인기 검색어를 arXiv에서 검색
 async def search_popular_keyword():
     # dbpia API에서 인기있는 검색어 가져오기
     response = await get_trend_keywords()
@@ -199,14 +200,13 @@ async def search_popular_keyword():
     for keyword in keywords:
         try:
             keyword_response = getMeta(keyword)
-            keyword_data = keyword_response
-            results.append({'keyword': keyword, 'length': len(keyword_data)})
+            results.append(keyword_response)
         except Exception as e:
             print(f'Error fetching data for keyword: {keyword}', e)
-            results.append({'keyword': keyword, 'length': 0})
+            results.append(keyword)
     
     if results:
         return {"resultCode" : 200, "data" : results}
     else:
-        return {"resultCode" : 404, "data" : results}
+        return {"resultCode" : 400, "data" : results}
     
