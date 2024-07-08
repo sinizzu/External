@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
 from app.services.web_search import search_query
+from app.services import keyword_extract_service
 from fastapi import APIRouter
 from app.schemas.web_search import SearchRequest, SearchResponse
 import logging
@@ -16,3 +17,7 @@ async def search(request: SearchRequest):
     results = await search_query(request.text)
     logger.info(f"Results: {results}")
     return SearchResponse(result=results)
+
+@router.get('/wikiSearch')
+async def wiki_search(keyword: str):
+    return await keyword_extract_service.wiki_search(keyword)
