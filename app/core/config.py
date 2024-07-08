@@ -17,6 +17,14 @@ class Settings:
     # 외부 API 키 설정
     HUGGINGFACE_API_KEY: str = os.getenv("HUGGINGFACE_API_KEY")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
+    
+    # google search 설정
+    API_KEY = os.getenv("CUSTOM_SEARCH_API")
+    CX = os.getenv("GOOGLE_CX")
+    
+    # IP
+    JH_IP = os.getenv("JH_IP")
+    
 
     # JWT 설정
     #JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")

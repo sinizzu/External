@@ -6,3 +6,7 @@
 
 # cache
 __pycache__
+
+# Ignore OCR key files
+**/ocr_key.json
+
