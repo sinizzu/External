@@ -1,21 +1,21 @@
-from fastapi import FastAPI, HTTPException, Form, Body, UploadFile, File
+from fastapi import APIRouter, FastAPI, HTTPException, Form, Body, UploadFile, File
 from fastapi import Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from google.cloud import vision
 from dotenv import load_dotenv
-from ocr import pdf_stream_to_jpg, image_to_text, pdf_to_text
-from db.weaviate_utils import save_to_weaviate, get_texts_by_title, get_all_schema_names, delete_class, get_class_data
+from app.services.ocr import pdf_stream_to_jpg, image_to_text, pdf_to_text
+from app.db.weaviate_utils import save_to_weaviate, get_texts_by_title, get_all_schema_names, delete_class, get_class_data
 
-app = FastAPI()
+router = APIRouter()
 load_dotenv()
 
-@app.get('/getSchemas')
+@router.get('/getSchemas')
 async def get_schemas():
     return get_all_schema_names()
-@app.post('/deleteSchema')
+@router.post('/deleteSchema')
 async def delete_schema(class_name):
     delete_class(class_name)
-@app.get("/getClassData/{class_name}")
+@router.get("/getClassData/{class_name}")
 async def get_class_data_endpoint(class_name: str, max_text_length: int = 50):
     try:
         data = get_class_data(class_name, max_text_length)
@@ -26,7 +26,7 @@ async def get_class_data_endpoint(class_name: str, max_text_length: int = 50):
         print(f"Error in /getClassData: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/ocr/ocrTest")
+@router.post("/ocrTest")
 async def upload_stream(file: UploadFile = File(...), title: str = Form(...)):
     try:
         # Weaviate에서 title이 존재하는지 확인

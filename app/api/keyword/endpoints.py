@@ -1,10 +1,11 @@
 from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse
-from web_search import search_query
+from app.services.web_search import search_query
+from fastapi import APIRouter
 
-app = FastAPI()
+router = APIRouter()
 
-@app.post("/search", response_class=HTMLResponse)
+@router.post("/searchWeb", response_class=HTMLResponse)
 async def search(query: str = Form(...)):
     return await search_query(query)
 

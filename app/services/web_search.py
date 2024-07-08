@@ -1,10 +1,9 @@
-from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 import requests
-import os
+from app.core.config import settings
 
-API_KEY = os.getenv("CUSTOM_SEARCH_API")
-CX = os.getenv("GOOGLE_CX")
+API_KEY = settings.API_KEY
+CX = settings.CX
 
 
 
