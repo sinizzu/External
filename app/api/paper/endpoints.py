@@ -21,14 +21,18 @@ async def search_keyword(searchword: str):
 async def getColl(searchword: str):
     return await paper_service.getColl(searchword)    
 
-@router.get('/dbpiasearch')
-async def get_trend_keywords():
-    return await paper_service.get_trend_keywords()
+@router.get('/searchDBpia')
+async def trendKeywords():
+    return await paper_service.trendKeywords()
 
 @router.get('/searchPopularkeyord')
-async def search_popular_keyword():
-    return await paper_service.search_popular_keyword()
+async def searchPopularKeyword():
+    return await paper_service.searchPopularKeyword()
 
 @router.get('/keywordExtract')
 async def keyword_extraction(text: str):
     return keyword_extract_service.keyword_extraction(text)
+
+@router.get('/searchFulltext')
+async def searchFulltext(text: str):
+    return await paper_service.searchFulltext(text)
