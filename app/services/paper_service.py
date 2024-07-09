@@ -10,8 +10,6 @@ from bs4 import BeautifulSoup
 
 import warnings
 
-
-
 client = get_weaviate_client()
 paperCollection = client.collections.get("Paper")
 documentCollection = client.collections.get("Document")
@@ -211,19 +209,3 @@ async def searchPopularKeyword():
     else:
         return {"resultCode" : 400, "data" : results}
     
-# weaviate full text 검색
-async def searchFulltext(title: str):
-    try: 
-        response = documentCollection.query.full_text(
-            query=title
-        )
-        res = []
-        # 오브젝트가 있으면
-        if response.objects:
-            for object in response.objects:
-                res.append(object.properties) # 반환 데이터에 추가
-            return {"resultCode" : 200, "data" : res}
-        else:
-            return {"resultCode" : 400, "data" : response}
-    except Exception as e:
-        return {"resultCode": 500, "data": str(e)}

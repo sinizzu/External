@@ -4,9 +4,14 @@ from pdf2image import convert_from_path, convert_from_bytes
 import io, os
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.docstore.document import Document
+from app.db.connect_db import get_weaviate_client
+from weaviate.classes.query import Filter
 
 # Google Cloud Vision API 인증을 위한 환경 변수 설정
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./ocr_key.json"
+
+client = get_weaviate_client()
+documentCollection = client.collections.get("Document")
 
 # Vision API 클라이언트 초기화
 client = vision.ImageAnnotatorClient()
@@ -127,3 +132,21 @@ def image_to_text(image_data):
     except Exception as e:
         print(f"Error processing image for OCR: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+    
+# weaviate full text 검색
+async def searchFulltext(title: str):
+    try: 
+        response = documentCollection.query.fetch_objects(
+            filters=Filter.by_property("title").equal(title),
+        )
+        res = []
+        # 오브젝트가 있으면
+        if response.objects:
+            for object in response.objects:
+                res.append(object.properties) # 반환 데이터에 추가
+            return {"resultCode" : 200, "data" : res}
+        else:
+            return {"resultCode" : 400, "data" : response}
+    except Exception as e:
+        return {"resultCode": 500, "data": str(e)}
+

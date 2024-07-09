@@ -33,6 +33,3 @@ async def searchPopularKeyword():
 async def keyword_extraction(text: str):
     return keyword_extract_service.keyword_extraction(text)
 
-@router.get('/searchFulltext')
-async def searchFulltext(text: str):
-    return await paper_service.searchFulltext(text)
