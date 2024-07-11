@@ -2,12 +2,12 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 import asyncio
 from app.services import paper_service
-from app.api.paper.endpoints import search_popular_keyword
+from app.api.paper.endpoints import searchPopularKeyword
 
 async def scheduled_job():
     try:
         # 인기 검색어를 가져와 arXiv에서 검색
-        search_results = await search_popular_keyword()
+        search_results = await searchPopularKeyword()
 
         for result in search_results['data']:
             keyword_data = result

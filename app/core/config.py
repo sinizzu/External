@@ -27,6 +27,10 @@ class Settings:
     JH_IP = os.getenv("JH_IP")
     YJ_IP = os.getenv("YJ_IP")
     HJ_IP = os.getenv("HJ_IP")
+    CY_IP = os.getenv("CY_IP")
+    MY_IP = os.getenv("MY_IP")
+    
+
     # JWT 설정
     #JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
     #JWT_ALGORITHM: str = "HS256"

@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, UploadFile, File
 from app.services import paper_service, keyword_extract_service
 from app.schemas import paper as paper_schema
-
+from app.db import connect_s3
 
 router = APIRouter()
 
@@ -21,14 +21,18 @@ async def search_keyword(searchword: str):
 async def getColl(searchword: str):
     return await paper_service.getColl(searchword)    
 
-@router.get('/dbpiasearch')
-async def get_trend_keywords():
-    return await paper_service.get_trend_keywords()
+@router.get('/searchDBpia')
+async def trendKeywords():
+    return await paper_service.trendKeywords()
 
 @router.get('/searchPopularkeyord')
-async def search_popular_keyword():
-    return await paper_service.search_popular_keyword()
+async def searchPopularKeyword():
+    return await paper_service.searchPopularKeyword()
 
 @router.get('/keywordExtract')
 async def keyword_extraction():
     return keyword_extract_service.keyword_extraction()
+
+@router.post("/saveToS3")
+async def save_to_s3(file: UploadFile = File(...)):
+    return await connect_s3.upload_file_to_s3(file)

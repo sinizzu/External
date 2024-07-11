@@ -3,6 +3,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse, HTMLResponse
 from google.cloud import vision
 from dotenv import load_dotenv
+from app.services import paper_service, keyword_extract_service, ocr
 from app.services.ocr import pdf_stream_to_jpg, image_to_text, pdf_to_text
 from app.db.weaviate_utils import save_to_weaviate, get_texts_by_title, get_all_schema_names, delete_class, get_class_data
 
@@ -56,6 +57,9 @@ async def upload_stream(file: UploadFile = File(...), title: str = Form(...)):
         print(f"Error in /ocrTest: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get('/searchFulltext')
+async def searchFulltext(title: str):
+    return await ocr.searchFulltext(title)
 
 # @app.post("/ocr/ocrPdf")
 # async def upload_stream(request: Request):
