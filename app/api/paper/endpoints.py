@@ -15,7 +15,7 @@ async def save_wea(meta_response: paper_schema.MetaResponse):
 
 @router.get("/searchKeyword")
 async def search_keyword(searchword: str):
-    return await paper_service.searchKeyword(searchword)
+    return paper_service.searchKeyword(searchword)
 
 @router.get('/getColl')
 async def getColl(searchword: str):
