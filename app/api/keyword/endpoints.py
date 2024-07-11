@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, Query
 from fastapi.responses import HTMLResponse
 from app.services.web_search import search_query
 from app.services import keyword_extract_service
@@ -19,5 +19,6 @@ async def search(request: SearchRequest):
     return SearchResponse(result=results)
 
 @router.get('/wikiSearch')
-async def wiki_search(keyword: str):
-    return keyword_extract_service.wiki_search(keyword)
+async def wiki_search(query: str = Query(...)):
+    result = keyword_extract_service.wiki_search(query)
+    return {"result": result}

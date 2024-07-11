@@ -50,19 +50,17 @@ def wiki_search(keyword: str):
     wiki_wiki = wikipediaapi.Wikipedia(
         user_agent='MyProjectName (merlin@example.com)',
         language='en',
-        extract_format=wikipediaapi.ExtractFormat.WIKI
+        extract_format=wikipediaapi.ExtractFormat.WIKI,
     )
     page = wiki_wiki.page(keyword)
-
-    link = f'https://en.wikipedia.org/wiki/{keyword.replace(" ", "_")}'
-    
+    print('----------------------------')
+    full_text = page.text
+    link = f'https://en.wikipedia.org/wiki/{keyword}'
     if page.exists():
-        # 첫 번째 문단 가져오기
-        first_paragraph = page.text.split('\n\n')[0]
         return {
             "resultCode": 200,
             "data": {
-                "pharse": first_paragraph,
+                "text": full_text,
                 "link": link
             }
         }
