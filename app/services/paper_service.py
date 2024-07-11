@@ -10,10 +10,9 @@ from bs4 import BeautifulSoup
 
 import warnings
 
-
-
 client = get_weaviate_client()
 paperCollection = client.collections.get("Paper")
+documentCollection = client.collections.get("Document")
 
 # 경고 메시지 무시
 warnings.filterwarnings("ignore", category=FutureWarning, module='huggingface_hub')
@@ -132,7 +131,7 @@ async def getColl(searchword: str):
         return {"resultCode": 500, "data": str(e)}
 
 # dbpia 인기키워드 검색
-async def get_trend_keywords():
+async def trendKeywords():
     try:
     # 요청할 URL
         url = 'https://www.dbpia.co.kr/curation/best-node/top/20?bestCode=ND'
@@ -151,8 +150,8 @@ async def get_trend_keywords():
         # 각 URL에서 해시태그 추출
         all_keywords = []
         for url in urls:
-            keywords = extract_keywords(url)
-            filtered_keywords = filter_keywords(keywords)
+            keywords = extractKeywords(url)
+            filtered_keywords = filterKeywords(keywords)
             all_keywords.extend(filtered_keywords)
 
         if all_keywords:
@@ -162,7 +161,7 @@ async def get_trend_keywords():
     except Exception as e:
         return {"resultCode": 500, "data": str(e)}
 
-def extract_keywords(url):
+def extractKeywords(url):
     try:
         response = requests.get(url)
         response.raise_for_status()  # 오류 체크
@@ -177,7 +176,7 @@ def extract_keywords(url):
         print(f"Error extracting keywords from {url}: {e}")
         return []
 
-def filter_keywords(keywords):
+def filterKeywords(keywords):
     filtered_keywords = []
     for keyword in keywords:
         # 한글이 포함된 키워드 제거
@@ -191,9 +190,9 @@ def filter_keywords(keywords):
 
 
 # 인기 검색어를 arXiv에서 검색
-async def search_popular_keyword():
+async def searchPopularKeyword():
     # dbpia API에서 인기있는 검색어 가져오기
-    response = await get_trend_keywords()
+    response = await trendKeywords()
     keywords = response.get("keywords", [])
     
     results = []
