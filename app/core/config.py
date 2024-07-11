@@ -28,6 +28,7 @@ class Settings:
     YJ_IP = os.getenv("YJ_IP")
     HJ_IP = os.getenv("HJ_IP")
     CY_IP = os.getenv("CY_IP")
+    MY_IP = os.getenv("MY_IP")
     
 
     # JWT 설정

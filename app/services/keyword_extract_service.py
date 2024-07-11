@@ -58,11 +58,11 @@ def wiki_search(keyword: str):
     
     if page.exists():
         # 첫 번째 문단 가져오기
-        first_paragraph = page.text.split('\n\n')[0]
+        full_text = page.text
         return {
             "resultCode": 200,
             "data": {
-                "pharse": first_paragraph,
+                "pharse": full_text,
                 "link": link
             }
         }
