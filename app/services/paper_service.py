@@ -102,13 +102,26 @@ def searchKeyword(searchword: str = Query(..., description="Search term for Weav
         )
         res = []
         # 오브젝트가 있으면
+        # 오브젝트가 있으면
         if response.objects:
-            for object in response.objects:
-                res.append(object.properties) # 반환 데이터에 추가
+            for obj in response.objects:
+                properties = obj.properties
+                # Extract relevant properties
+                title = properties.get("title")
+                authors = properties.get("authors")
+                category = properties.get("category")
+                published = properties.get("published")
+                direct_link = properties.get("direct_link")
+                pdf_link = properties.get("pdf_link")
+                abstract = properties.get("abstract")
+                
+                res.append({
+                    "title": title, "authors": authors, "category": category, "published": published,
+                    "direct_link": direct_link, "pdf_link": pdf_link, "abstract": abstract
+                })
             return {"resultCode" : 200, "data" : res}
         else:
             return {"resultCode" : 400, "data" : response}
-    
     except Exception as e:
         return {"resultCode": 500, "data": str(e)}
 
@@ -122,13 +135,27 @@ async def getColl(searchword: str):
         res = []
         # 오브젝트가 있으면
         if response.objects:
-            for object in response.objects:
-                res.append(object.properties) # 반환 데이터에 추가
+            for obj in response.objects:
+                properties = obj.properties
+                # Extract relevant properties
+                title = properties.get("title")
+                authors = properties.get("authors")
+                category = properties.get("category")
+                published = properties.get("published")
+                direct_link = properties.get("direct_link")
+                pdf_link = properties.get("pdf_link")
+                abstract = properties.get("abstract")
+                
+                res.append({
+                    "title": title, "authors": authors, "category": category, "published": published,
+                    "direct_link": direct_link, "pdf_link": pdf_link, "abstract": abstract
+                })
             return {"resultCode" : 200, "data" : res}
         else:
             return {"resultCode" : 400, "data" : response}
     except Exception as e:
         return {"resultCode": 500, "data": str(e)}
+
 
 # dbpia 인기키워드 검색
 async def trendKeywords():
