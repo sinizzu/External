@@ -4,12 +4,19 @@ import wikipedia
 import wikipediaapi
 import textrazor
 import os
+import app.services.ocr as ocr
+
 
 textrazor.api_key = settings.TEXTRAZOR_API_KEY
 tr_client = textrazor.TextRazor(extractors=["entities", "keywords"])
 tr_client.set_classifiers(["textrazor_newscodes"])
 
-def keyword_extraction(text: str):
+def keyword_extraction():
+    current_dir = os.path.dirname(__file__)
+    pdf_file_path = os.path.join(current_dir, "data", "test.pdf")
+
+    text = ocr.pdf_to_text(pdf_file_path)
+    
     keyword = {}
     link = {}
     wikiLink = {}
