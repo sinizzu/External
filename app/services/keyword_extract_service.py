@@ -13,7 +13,7 @@ tr_client.set_classifiers(["textrazor_newscodes"])
 
 def keyword_extraction():
     current_dir = os.path.dirname(__file__)
-    pdf_file_path = os.path.join(current_dir, "data", "test.pdf")
+    pdf_file_path = os.path.join(current_dir, "data", "Articles.pdf")
 
     text = ocr.pdf_to_text(pdf_file_path)
     
@@ -53,16 +53,15 @@ def wiki_search(keyword: str):
         extract_format=wikipediaapi.ExtractFormat.WIKI
     )
     page = wiki_wiki.page(keyword)
-
-    link = f'https://en.wikipedia.org/wiki/{keyword.replace(" ", "_")}'
+    print(page.text)
+    link = f'https://en.wikipedia.org/wiki/{keyword}'
     
     if page.exists():
-        # 첫 번째 문단 가져오기
         full_text = page.text
         return {
             "resultCode": 200,
             "data": {
-                "pharse": full_text,
+                "text": full_text,
                 "link": link
             }
         }
