@@ -1,58 +1,76 @@
 from fastapi import APIRouter, FastAPI, HTTPException, Form, Body, UploadFile, File
-from fastapi import Request
+import os
 from fastapi.responses import JSONResponse, HTMLResponse
 from google.cloud import vision
 from dotenv import load_dotenv
 from app.services import paper_service, keyword_extract_service, ocr
-from app.services.ocr import pdf_stream_to_jpg, image_to_text, pdf_to_text
-from app.db.weaviate_utils import save_to_weaviate, get_texts_by_title, get_all_schema_names, delete_class, get_class_data
+from app.services.ocr import pdfStreamToJpg, imageToText, downloadPdfLink
+from app.db.weaviate_utils import saveToWeaviate, getTextsByTitle, getAllSchema, deleteClass, getClassData, deleteDataByTitle
 
 router = APIRouter()
 load_dotenv()
 
 @router.get('/getSchemas')
 async def get_schemas():
-    return get_all_schema_names()
+    return getAllSchema()
 @router.post('/deleteSchema')
-async def delete_schema(class_name):
-    delete_class(class_name)
-@router.get("/getClassData/{class_name}")
-async def get_class_data_endpoint(class_name: str, max_text_length: int = 50):
+async def delete_schema(className):
+    deleteClass(className)
+@router.get("/getClassData/{className}")
+async def get_class_data_endpoint(className: str, maxTextLength: int = 50):
     try:
-        data = get_class_data(class_name, max_text_length)
+        data = getClassData(className, maxTextLength)
         if isinstance(data, str):
             raise HTTPException(status_code=400, detail=data)
-        return {"resultCode": 200, "className": class_name, "data": data}
+        return {"resultCode": 200, "className": className, "data": data}
     except Exception as e:
         print(f"Error in /getClassData: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/ocrTest")
-async def upload_stream(file: UploadFile = File(...), title: str = Form(...)):
+@router.post("/deleteData")
+async def deleteData(title: str):
     try:
+        deleteDataByTitle("Document", title)
+        return getClassData("Document", 50)
+    except Exception as e:
+        print(f"Error in /deleteData: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+@router.post("/ocrTest")
+async def uploadData(file: UploadFile = File(None), pdfUrl: str = Form(None)):
+    try:
+        pdfStreamData = None
+        title = None
+
+        if pdfUrl:
+            pdfStreamData = downloadPdfLink(pdfUrl)
+            # PDF URL을 제목으로 사용
+            title = pdfUrl
+        else:
+            pdfStreamData = await file.read()
+            # 파일 이름에서 .pdf를 뺀 부분을 제목으로 사용
+            title = os.path.splitext(file.filename)[0]
+
         # Weaviate에서 title이 존재하는지 확인
-        existing_data = get_texts_by_title("Document", title)
-        
+        existingData = getTextsByTitle("Document", title)
+
         # title이 존재하면 해당 데이터를 반환
-        if isinstance(existing_data, dict):
+        if isinstance(existingData, dict):
             return JSONResponse(content={"resultCode": 200, 
-                                         "data": existing_data})
-        # PDF 파일 읽기
-        pdf_stream_data = await file.read()
-    
+                                         "data": existingData})
+
         # PDF 스트림 데이터를 JPEG 이미지로 변환
-        jpg_image_data = pdf_stream_to_jpg(pdf_stream_data)
-    
+        jpgImgData = pdfStreamToJpg(pdfStreamData)
+
         # 이미지 데이터를 텍스트로 변환
-        extracted_data = image_to_text(jpg_image_data)
-        
-        # weaviate 컬렉션 확인 및 저장
-        save_result = save_to_weaviate(title, extracted_data.get("texts"))
+        extractedData = imageToText(jpgImgData)
+
+        # Weaviate 컬렉션 확인 및 저장
+        saveResult = saveToWeaviate(title, extractedData.get("texts"))
+
         # JSON 응답 반환
         return JSONResponse(content={"resultCode": 200, 
                                      "data": {"title": title, 
-                                              "texts": extracted_data.get("texts")}, 
-                                     "save_result": save_result})
+                                              "texts": extractedData.get("texts")}, 
+                                     "save_result": saveResult})
     except Exception as e:
         print(f"Error in /ocrTest: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
