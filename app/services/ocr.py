@@ -1,12 +1,12 @@
 from google.cloud import vision
 from fastapi import HTTPException
 from pdf2image import convert_from_path, convert_from_bytes 
-import io, os
+import io, os, requests
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.docstore.document import Document
 from app.db.connect_db import get_weaviate_client
-from weaviate.classes.query import Filter
-import re
+import fitz;
+
 
 # Google Cloud Vision API 인증을 위한 환경 변수 설정
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./ocr_key.json"
@@ -16,7 +16,16 @@ documentCollection = client.collections.get("Document")
 
 # Vision API 클라이언트 초기화
 client = vision.ImageAnnotatorClient()
-def pdf_to_text(pdf_file):
+
+def downloadPdfLink(pdfUrl):
+    try :
+        response = requests.get(pdfUrl)
+        response.raise_for_status()
+        return response.content
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(status_code=400, detail=f"Error downloading PDF: {str(e)}")
+    
+def pdfToText(pdf_file):
     # Google Cloud Vision API 클라이언트 생성
     client = vision.ImageAnnotatorClient()
 
@@ -50,17 +59,17 @@ def pdf_to_text(pdf_file):
     return extracted_text
 if __name__ == "__main__":
     pdf_file_path = "./data/test2.pdf"
-    extracted_text = pdf_to_text(pdf_file_path)
+    extracted_text = pdfToText(pdf_file_path)
     print("Extracted text:")
     print(extracted_text)
 
 
 # 디렉토리가 없으면 생성하는 함수
-def ensure_dir(directory):
+def ensureDir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-def pdf_stream_to_jpg(pdf_stream):
+def pdfStreamToJpg(pdf_stream):
     try:
         # PDF 스트림 데이터를 이미지로 변환
         images = convert_from_bytes(pdf_stream)
@@ -80,7 +89,7 @@ def pdf_stream_to_jpg(pdf_stream):
         print(f"Error converting PDF to image: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-def image_to_text(image_data):
+def imageToText(image_data):
     try:
         client = vision.ImageAnnotatorClient()
         combined_text = ""
@@ -134,3 +143,14 @@ def image_to_text(image_data):
         print(f"Error processing image for OCR: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
+def pdfUrlToText(pdfUrl):
+    try: 
+        pdfStream = downloadPdfLink(pdfUrl)
+        imgDatas = pdfStreamToJpg(pdfStream)
+        ocrResult = imageToText(imgDatas)
+        
+        return ocrResult
+    except Exception as e:
+        print(f"Error processing PDF for OCR: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+

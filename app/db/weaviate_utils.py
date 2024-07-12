@@ -20,31 +20,31 @@ else:
     print("Weaviate Cloud에 연결할 수 없습니다.")
 
 # 모든 스키마의 이름만 반환
-def get_all_schema_names():
+def getAllSchema():
     schema = client.schema.get()
-    class_names = [cls["class"] for cls in schema["classes"]]
+    classNames = [cls["class"] for cls in schema["classes"]]
     result = {
         "resultCode": 200,
-        "data": class_names
+        "data": classNames
     }
     return result
 
 # 클래스 삭제 함수
-def delete_class(class_name):
+def deleteClass(className):
     try:
-        client.schema.delete_class(class_name)
-        print(f"Class '{class_name}' has been successfully deleted.")
+        client.schema.delete_class(className)
+        print(f"Class '{className}' has been successfully deleted.")
     except weaviate.exceptions.UnexpectedStatusCodeException as e:
-        print(f"Failed to delete class '{class_name}': {str(e)}")
+        print(f"Failed to delete class '{className}': {str(e)}")
         
 # Document 클래스 생성 함수
-def create_document_class():
+def createDocumentClass():
     try:
         # 기존 클래스 확인
         schema = client.schema.get()
-        existing_classes = [cls["class"] for cls in schema["classes"]]
+        existingClasses = [cls["class"] for cls in schema["classes"]]
         
-        if "Document" not in existing_classes:
+        if "Document" not in existingClasses:
             client.schema.create_class(
                 {
                     "class": "Document",
@@ -61,45 +61,45 @@ def create_document_class():
         print(f"Document 클래스 생성 실패: {str(e)}")
 
 # Weaviate의 Document 클래스에 데이터 저장 함수
-def save_to_weaviate(title, texts):
+def saveToWeaviate(title, texts):
     try:
         # Document 클래스가 존재하는지 확인하고 없으면 생성
-        create_document_class()
+        createDocumentClass()
         
-        data_object = {
+        dataObject = {
             "title": title,
             "texts": texts
         }
-        client.data_object.create(data_object, "Document")
+        client.data_object.create(dataObject, "Document")
         return "Data successfully saved to Weaviate"
     except weaviate.exceptions.UnexpectedStatusCodeException as e:
         return f"Failed to save data to Weaviate: {str(e)}"
     
 # Weaviate의 특정 클래스 데이터를 조회하는 함수
-def get_class_data(class_name, max_text_length=50):
+def getClassData(className, maxTextLength=50):
     try:
-        result = client.query.get(class_name, ["title", "texts"]).with_additional('id').do()
-        if 'data' in result and 'Get' in result['data'] and class_name in result['data']['Get']:
-            data = result['data']['Get'][class_name]
+        result = client.query.get(className, ["title", "texts"]).with_additional('id').do()
+        if 'data' in result and 'Get' in result['data'] and className in result['data']['Get']:
+            data = result['data']['Get'][className]
             formatted_data = [
                 {
                     "title": item["title"],
-                    "texts": item["texts"][:max_text_length] + "..." if len(item["texts"]) > max_text_length else item["texts"]
+                    "texts": item["texts"][:maxTextLength] + "..." if len(item["texts"]) > maxTextLength else item["texts"]
                 }
                 for item in data
             ]
             return formatted_data
-        return f"Class '{class_name}' not found or no data available."
+        return f"Class '{className}' not found or no data available."
     except weaviate.exceptions.UnexpectedStatusCodeException as e:
         return f"Failed to retrieve data from Weaviate: {str(e)}"
     
 # Weaviate의 Document 클래스에서 특정 타이틀을 가진 객체의 texts를 조회하는 함수
-def get_texts_by_title(class_name, title, max_text_length=50):
+def getTextsByTitle(className, title, maxTextLength=50):
     try:
         query = f"""
         {{
             Get {{
-                {class_name} (
+                {className} (
                     where: {{
                         path: ["title"],
                         operator: Equal,
@@ -113,15 +113,41 @@ def get_texts_by_title(class_name, title, max_text_length=50):
         }}
         """
         result = client.query.raw(query)
-        if 'data' in result and 'Get' in result['data'] and class_name in result['data']['Get']:
-            data = result['data']['Get'][class_name]
+        if 'data' in result and 'Get' in result['data'] and className in result['data']['Get']:
+            data = result['data']['Get'][className]
             if data:
                 item = data[0]
                 return {
                     "title": item["title"],
-                    "texts": item["texts"][:max_text_length] + "..." if len(item["texts"]) > max_text_length else item["texts"]
+                    "texts": item["texts"][:maxTextLength] + "..." if len(item["texts"]) > maxTextLength else item["texts"]
                 }
-            return f"Title '{title}' not found in class '{class_name}'."
-        return f"Class '{class_name}' not found or no data available."
+            return f"Title '{title}' not found in class '{className}'."
+        return f"Class '{className}' not found or no data available."
     except weaviate.exceptions.UnexpectedStatusCodeException as e:
         return f"Failed to retrieve data from Weaviate: {str(e)}"
+    
+def deleteDataByTitle(className, title):
+    try:
+# 쿼리 작성
+        query = {
+            "match": {
+                "class": className,
+                "where": {
+                    "operator": "Equal",
+                    "path": ["title"],
+                    "valueText": title
+                }
+            }
+        }
+
+        # 삭제 요청
+        result = client.data_object.delete(query)
+
+        if result:
+            return f"Data with title '{title}' deleted successfully."
+        else:
+            return f"Title '{title}' not found in class '{className}'."
+    except weaviate.exceptions.UnexpectedStatusCodeException as e:
+        return f"Failed to delete data from Weaviate: {str(e)}"
+    except Exception as e:
+        return f"An unexpected error occurred: {str(e)}"
