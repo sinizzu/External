@@ -5,7 +5,7 @@ from app.db import connect_s3
 
 router = APIRouter()
 
-@router.get("/getMeta", response_model=paper_schema.MetaResponse)
+@router.get("/searchMeta", response_model=paper_schema.MetaResponse)
 async def get_meta(searchword: str):
     return paper_service.getMeta(searchword)
 
@@ -17,7 +17,7 @@ async def save_wea(meta_response: paper_schema.MetaResponse):
 async def search_keyword(searchword: str):
     return paper_service.searchKeyword(searchword)
 
-@router.get('/getColl')
+@router.get('/searchColl')
 async def getColl(searchword: str):
     return await paper_service.getColl(searchword)    
 
