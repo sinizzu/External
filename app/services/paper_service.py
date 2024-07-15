@@ -216,6 +216,20 @@ def filterKeywords(keywords):
     return filtered_keywords
 
 
+
+# object id 가져오기
+def getObjectId(searchTitle: str):
+    try: 
+        res = paperCollection.query.fetch_objects(
+            filters=Filter.by_property("title").equal(searchTitle),
+        )
+        if res.objects:
+            return {"resultCode" : 200, "data" : res.objects[0].uuid}
+        else:
+            return {"resultCode" : 400, "data" : res}
+    except Exception as e:
+        return {"resultCode": 500, "data": str(e)}
+
 # 인기 검색어를 arXiv에서 검색
 async def searchPopularKeyword():
     # dbpia API에서 인기있는 검색어 가져오기

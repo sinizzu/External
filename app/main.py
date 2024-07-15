@@ -31,7 +31,7 @@ start_scheduler()
 # Include routers
 app.include_router(paper_endpoints.router, prefix="/api/paper", tags=["paper"])
 app.include_router(ocr_endpoints.router, prefix="/api/ocr", tags=["ocr"])
-app.include_router(search_endpoints.router, prefix="/search", tags=["search"])
+app.include_router(search_endpoints.router, prefix="/api/search", tags=["search"])
 
 if __name__ == "__main__":
     import uvicorn
