@@ -20,7 +20,7 @@ app = FastAPI(
 # CORS 설정 추가
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000", f"http://{JH_IP}", f"http://{YJ_IP}", f"http://{HJ_IP}", f"http://{CY_IP}"],  # 모든 도메인에서 오는 요청을 허용합니다. 실제로는 필요한 도메인만 허용하도록 변경해야 합니다.
+    allow_origins=["http://localhost:8000","http://localhost:8500", f"http://{JH_IP}", f"http://{YJ_IP}", f"http://{HJ_IP}", f"http://{CY_IP}"],  # 모든 도메인에서 오는 요청을 허용합니다. 실제로는 필요한 도메인만 허용하도록 변경해야 합니다.
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

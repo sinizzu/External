@@ -5,7 +5,6 @@ import io, os, requests
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.docstore.document import Document
 from app.db.connect_db import get_weaviate_client
-import fitz;
 
 
 # Google Cloud Vision API 인증을 위한 환경 변수 설정
