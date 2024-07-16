@@ -4,8 +4,7 @@ import wikipedia
 import wikipediaapi
 import textrazor
 import os
-import app.services.ocr as ocr
-
+import app.services.ocr_service as ocr
 
 textrazor.api_key = settings.TEXTRAZOR_API_KEY
 tr_client = textrazor.TextRazor(extractors=["entities", "keywords"])

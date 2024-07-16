@@ -17,7 +17,7 @@ s3 = boto3.client(
     region_name=AWS_REGION
 )
 
-async def upload_file_to_s3(file):
+async def uploadFileToS3(file):
     try : 
         fileExtension = file.filename.split('.')[-1]
         uniqueFileName = f"{uuid.uuid4()}.{fileExtension}"

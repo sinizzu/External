@@ -12,7 +12,6 @@ import warnings
 
 client = get_weaviate_client()
 paperCollection = client.collections.get("paper")
-documentCollection = client.collections.get("Document")
 
 # 경고 메시지 무시
 warnings.filterwarnings("ignore", category=FutureWarning, module='huggingface_hub')
@@ -217,14 +216,20 @@ def filterKeywords(keywords):
 
 
 
-# object id 가져오기
-def getObjectId(searchTitle: str):
+# object id와 pdf_link 가져오기
+def getObjectId(searchLink: str):
     try: 
         res = paperCollection.query.fetch_objects(
-            filters=Filter.by_property("title").equal(searchTitle),
+            filters=Filter.by_property("pdf_link").equal(searchLink),
+            limit=1,
+            return_properties=["pdf_link"]
         )
+        data = {
+            "uuid": res.objects[0].uuid,
+            "pdf_link": res.objects[0].properties["pdf_link"]
+        }
         if res.objects:
-            return {"resultCode" : 200, "data" : res.objects[0].uuid}
+            return {"resultCode" : 200, "data" : data}
         else:
             return {"resultCode" : 400, "data" : res}
     except Exception as e:
