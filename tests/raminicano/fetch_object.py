@@ -1,7 +1,9 @@
+
 import weaviate
 import os
 import weaviate.classes.config as wc
 from weaviate.classes.config import Configure, Property, DataType
+from weaviate.classes.query import Filter
 
 
 
@@ -10,6 +12,7 @@ URL = os.getenv("WCS_URL")
 APIKEY = os.getenv("WCS_API_KEY")
 HUGGING = os.getenv("HUGGINGFACE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 
 headers = {
     "X-HuggingFace-Api-Key": HUGGING,
@@ -31,22 +34,15 @@ else:
     print("Weaviate Cloud에 연결할 수 없습니다.")
 
 
-# 컬렉션 생성
-chunks = client.collections.create(
-    name="chunk_pdf",
-    vectorizer_config=Configure.Vectorizer.text2vec_huggingface(model="sentence-transformers/all-MiniLM-L6-v2"),
-    properties=[
-        wc.Property(name="pdf_id", data_type=wc.DataType.TEXT, skip_vectorization=True),
-        wc.Property(name="chunk_text", data_type=wc.DataType.TEXT),
-        wc.Property(name="chunk_id", data_type=wc.DataType.INT, skip_vectorization=True),
 
-    ],
-    generative_config=wc.Configure.Generative.openai('gpt-3.5-turbo-16k')
+collection = client.collections.get("chunk_pdf")
+
+response = collection.query.fetch_objects(
+    filters=(
+        Filter.by_property("pdf_id").equal("ea1cc84c-fd0d-4c5e-9e14-bf5fad2fd042")
+    ),
+    return_properties=["chunk_text"]
 )
 
-# 스키마 생성 확인
-print("chunk_pdf 컬렉션이 성공적으로 생성되었습니다.")
-collection = client.collections.get("chunk_pdf")
-print(collection)
+print(len(response.objects))
 
-client.close()

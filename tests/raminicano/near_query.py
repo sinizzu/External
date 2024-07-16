@@ -2,6 +2,8 @@ import weaviate
 import os
 import weaviate.classes.config as wc
 from weaviate.classes.config import Configure, Property, DataType
+from weaviate.classes.query import Filter
+
 
 
 
@@ -23,30 +25,27 @@ client = weaviate.connect_to_wcs(
     headers=headers
     )
 
-
 # 연결 확인
 if client.is_ready():
     print("Weaviate Cloud에 성공적으로 연결되었습니다.")
 else:
     print("Weaviate Cloud에 연결할 수 없습니다.")
 
+query = "Describe the five main linguistic tasks mentioned here, which are fully linguistically synchronized and improved goals based on syntax and semantic components"
+task =  "Answer the following question based on the provided texts:\n\n"
+chunkCollection = client.collections.get("chunk_pdf")
+pdf_id = "ea1cc84c-fd0d-4c5e-9e14-bf5fad2fd042"
 
-# 컬렉션 생성
-chunks = client.collections.create(
-    name="chunk_pdf",
-    vectorizer_config=Configure.Vectorizer.text2vec_huggingface(model="sentence-transformers/all-MiniLM-L6-v2"),
-    properties=[
-        wc.Property(name="pdf_id", data_type=wc.DataType.TEXT, skip_vectorization=True),
-        wc.Property(name="chunk_text", data_type=wc.DataType.TEXT),
-        wc.Property(name="chunk_id", data_type=wc.DataType.INT, skip_vectorization=True),
 
-    ],
-    generative_config=wc.Configure.Generative.openai('gpt-3.5-turbo-16k')
+res = chunkCollection.generate.near_text(
+    filters=(
+        Filter.by_property("pdf_id").equal(pdf_id)
+    ),
+    query=query,
+    limit=5,
+    grouped_task=task
 )
 
-# 스키마 생성 확인
-print("chunk_pdf 컬렉션이 성공적으로 생성되었습니다.")
-collection = client.collections.get("chunk_pdf")
-print(collection)
-
-client.close()
+print(res.generated)
+for o in res.objects:
+    print(o.properties)
