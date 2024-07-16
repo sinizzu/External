@@ -29,8 +29,8 @@ async def get_class_data_endpoint(className: str, maxTextLength: int = 50):
 @router.post("/deleteData")
 async def deleteData(title: str):
     try:
-        deleteDataByTitle("Document", title)
-        return getClassData("Document", 50)
+        deleteDataByTitle("pdf", title)
+        return getClassData("pdf", 50)
     except Exception as e:
         print(f"Error in /deleteData: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -50,7 +50,7 @@ async def uploadData(file: UploadFile = File(None), pdfUrl: str = Form(None)):
             title = os.path.splitext(file.filename)[0]
 
         # Weaviate에서 title이 존재하는지 확인
-        existingData = getTextsByTitle("Document", title)
+        existingData = getTextsByTitle("pdf", title)
 
         # title이 존재하면 해당 데이터를 반환
         if isinstance(existingData, dict):

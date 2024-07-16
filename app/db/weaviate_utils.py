@@ -37,40 +37,40 @@ def deleteClass(className):
     except weaviate.exceptions.UnexpectedStatusCodeException as e:
         print(f"Failed to delete class '{className}': {str(e)}")
         
-# Document 클래스 생성 함수
-def createDocumentClass():
+# pdf 클래스 생성 함수
+def createPdfClass():
     try:
         # 기존 클래스 확인
         schema = client.schema.get()
         existingClasses = [cls["class"] for cls in schema["classes"]]
         
-        if "Document" not in existingClasses:
+        if "pdf" not in existingClasses:
             client.schema.create_class(
                 {
-                    "class": "Document",
+                    "class": "pdf",
                     "properties": [
                         {"name": "title", "dataType": ["string"]},
                         {"name": "texts", "dataType": ["text"]}
                     ]
                 }
             )
-            print("Document 클래스가 성공적으로 생성되었습니다.")
+            print("pdf 컬렉션 성공적으로 생성되었습니다.")
         else:
-            print("Document 클래스가 이미 존재합니다.")
+            print("pdf 컬렉션이 이미 존재합니다.")
     except weaviate.exceptions.UnexpectedStatusCodeException as e:
-        print(f"Document 클래스 생성 실패: {str(e)}")
+        print(f"pdf 컬렉션 생성 실패: {str(e)}")
 
-# Weaviate의 Document 클래스에 데이터 저장 함수
+# Weaviate의 pdf 클래스에 데이터 저장 함수
 def saveToWeaviate(title, texts):
     try:
-        # Document 클래스가 존재하는지 확인하고 없으면 생성
-        createDocumentClass()
+        # pdf 클래스가 존재하는지 확인하고 없으면 생성
+        createPdfClass()
         
         dataObject = {
             "title": title,
             "texts": texts
         }
-        client.data_object.create(dataObject, "Document")
+        client.data_object.create(dataObject, "pdf")
         return "Data successfully saved to Weaviate"
     except weaviate.exceptions.UnexpectedStatusCodeException as e:
         return f"Failed to save data to Weaviate: {str(e)}"
@@ -93,7 +93,7 @@ def getClassData(className, maxTextLength=50):
     except weaviate.exceptions.UnexpectedStatusCodeException as e:
         return f"Failed to retrieve data from Weaviate: {str(e)}"
     
-# Weaviate의 Document 클래스에서 특정 타이틀을 가진 객체의 texts를 조회하는 함수
+# Weaviate의 pdf 클래스에서 특정 타이틀을 가진 객체의 texts를 조회하는 함수
 def getTextsByTitle(className, title, maxTextLength=50):
     try:
         query = f"""
