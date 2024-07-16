@@ -33,28 +33,26 @@ else:
 
 # Paper 클래스의 속성 및 벡터화 설정 정의
 client.collections.create(
-    name="Paper",
+    name="paper",
     vectorizer_config=Configure.Vectorizer.text2vec_huggingface(model="sentence-transformers/all-MiniLM-L6-v2"),
     properties=[
         wc.Property(name="title", data_type=wc.DataType.TEXT),
-        wc.Property(name="authors", data_type=wc.DataType.TEXT_ARRAY, skip_vectorization=True),
+        wc.Property(name="authors", data_type=wc.DataType.TEXT_ARRAY),
         wc.Property(name="abstract", data_type=wc.DataType.TEXT),
-        wc.Property(name="published", data_type=wc.DataType.DATE),
+        wc.Property(name="published", data_type=wc.DataType.DATE, skip_vectorization=True),
         wc.Property(name="direct_link", data_type=wc.DataType.TEXT, skip_vectorization=True),
         wc.Property(name="pdf_link", data_type=wc.DataType.TEXT, skip_vectorization=True),
         wc.Property(name="category", data_type=wc.DataType.TEXT, skip_vectorization=True),
         wc.Property(name="trans_summary", data_type=wc.DataType.TEXT, skip_vectorization=True),
-        wc.Property(name="full_text", data_type=wc.DataType.TEXT, skip_vectorization=True),
-        wc.Property(name="keywords", data_type=wc.DataType.TEXT_ARRAY, skip_vectorization=True),
-        wc.Property(name="summary", data_type=wc.DataType.TEXT),
+        wc.Property(name="summary", data_type=wc.DataType.TEXT, skip_vectorization=True),
     ],
     # Define the generative module
     generative_config=wc.Configure.Generative.openai('gpt-3.5-turbo-16k'),
 )
 
 # 스키마 생성 확인
-print("Paper 컬렉션이 성공적으로 생성되었습니다.")
-collection = client.collections.get("Paper")
+print("paper 컬렉션이 성공적으로 생성되었습니다.")
+collection = client.collections.get("paper")
 print(collection)
 
 client.close()

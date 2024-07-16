@@ -31,23 +31,22 @@ else:
     print("Weaviate Cloud에 연결할 수 없습니다.")
 
 
-# Paper 클래스의 속성 및 벡터화 설정 정의
-client.collections.create(
-    name="Pdf",
-    vectorizer_config=None,
+# 컬렉션 생성
+chunks = client.collections.create(
+    name="Chunk_pdf",
+    vectorizer_config=Configure.Vectorizer.text2vec_huggingface(model="sentence-transformers/all-MiniLM-L6-v2"),
     properties=[
-        wc.Property(name="pdf_id", data_type=wc.DataType.TEXT),  # S3 ID or Paper collection object ID
-        wc.Property(name="pdf_link", data_type=wc.DataType.TEXT),  # Direct link to the PDF
-        wc.Property(name="pre_image", data_type=wc.DataType.BLOB),  # Thumbnail image as blob
-        wc.Property(name="keywords", data_type=wc.DataType.TEXT_ARRAY),  # Extracted keywords
-        wc.Property(name="full_text", data_type=wc.DataType.TEXT)  # Full text from OCR
-    ]
- )
+        wc.Property(name="pdf_id", data_type=wc.DataType.TEXT, skip_vectorization=True),
+        wc.Property(name="chunk_text", data_type=wc.DataType.TEXT),
+        wc.Property(name="chunk_id", data_type=wc.DataType.INT, skip_vectorization=True),
 
+    ],
+    generative_config=wc.Configure.Generative.openai('gpt-3.5-turbo-16k')
+)
 
 # 스키마 생성 확인
-print("Pdf 컬렉션이 성공적으로 생성되었습니다.")
-collection = client.collections.get("Pdf")
+print("Chunk_pdf 컬렉션이 성공적으로 생성되었습니다.")
+collection = client.collections.get("Chunk_pdf")
 print(collection)
 
 client.close()

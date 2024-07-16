@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 import warnings
 
 client = get_weaviate_client()
-paperCollection = client.collections.get("Paper")
+paperCollection = client.collections.get("paper")
 documentCollection = client.collections.get("Document")
 
 # 경고 메시지 무시
