@@ -33,7 +33,7 @@ else:
 
 # Paper 클래스의 속성 및 벡터화 설정 정의
 client.collections.create(
-    name="Pdf",
+    name="pdf",
     vectorizer_config=None,
     properties=[
         wc.Property(name="pdf_id", data_type=wc.DataType.TEXT),  # S3 ID or Paper collection object ID
@@ -47,7 +47,7 @@ client.collections.create(
 
 # 스키마 생성 확인
 print("Pdf 컬렉션이 성공적으로 생성되었습니다.")
-collection = client.collections.get("Pdf")
+collection = client.collections.get("pdf")
 print(collection)
 
 client.close()
