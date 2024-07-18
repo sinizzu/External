@@ -29,7 +29,7 @@ if client.is_ready():
 else:
     print("Weaviate Cloud에 연결할 수 없습니다.")
 
-client.collections.delete("Chunk_pdf")  
+client.collections.delete("pdf")  
 
 client.close()
 

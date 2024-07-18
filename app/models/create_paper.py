@@ -42,12 +42,8 @@ client.collections.create(
         wc.Property(name="published", data_type=wc.DataType.DATE, skip_vectorization=True),
         wc.Property(name="direct_link", data_type=wc.DataType.TEXT, skip_vectorization=True),
         wc.Property(name="pdf_link", data_type=wc.DataType.TEXT, skip_vectorization=True),
-        wc.Property(name="category", data_type=wc.DataType.TEXT, skip_vectorization=True),
-        wc.Property(name="trans_summary", data_type=wc.DataType.TEXT, skip_vectorization=True),
-        wc.Property(name="summary", data_type=wc.DataType.TEXT, skip_vectorization=True),
-    ],
-    # Define the generative module
-    generative_config=wc.Configure.Generative.openai('gpt-3.5-turbo-16k'),
+        wc.Property(name="category", data_type=wc.DataType.TEXT, skip_vectorization=True)
+        ]
 )
 
 # 스키마 생성 확인
