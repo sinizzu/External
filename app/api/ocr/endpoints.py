@@ -45,6 +45,10 @@ async def deleteData(title: str):
 @router.post("/ocrTest")
 async def uploadData(pdfId: str = Form(None), pdfUrl: str = Form(None)):
     try:
+        if not pdfUrl or not pdfId:
+            raise HTTPException(status_code=400, detail="Invalid input: pdfUrl or pdfId is missing")
+
+        print(f"Received pdfUrl: {pdfUrl}, pdfId: {pdfId}")
         pdfStreamData = None
         check = pdfCollection.query.fetch_objects(
             filters=Filter.by_property("pdf_id").equal(pdfId),

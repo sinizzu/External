@@ -36,7 +36,9 @@ async def keyword_extraction():
 @router.post("/saveToS3")
 async def save_to_s3(file: UploadFile = File(...)):
     return await connect_s3.uploadFileToS3(file)
-
+@router.get("/listPdfs")
+async def list_pdfs():
+    return await connect_s3.listPdfs()
 
 @router.get("/searchObjectId")
 async def search_keyword(searchLink: str):
