@@ -219,19 +219,17 @@ def filterKeywords(keywords):
 # object id와 pdf_link 가져오기
 def getObjectId(searchLink: str):
     try: 
-        res = paperCollection.query.fetch_objects(
+        response = paperCollection.query.fetch_objects(
             filters=Filter.by_property("pdf_link").equal(searchLink),
-            limit=1,
-            return_properties=["pdf_link"]
         )
-        data = {
-            "uuid": res.objects[0].uuid,
-            "pdf_link": res.objects[0].properties["pdf_link"]
-        }
-        if res.objects:
-            return {"resultCode" : 200, "data" : data}
+        res = []
+        # 오브젝트가 있으면
+        if response.objects:
+            for object in response.objects:
+                res.append(object.uuid) # 반환 데이터에 추가
+            return {"resultCode" : 200, "data" : res[0]}
         else:
-            return {"resultCode" : 400, "data" : res}
+            return {"resultCode" : 400, "data" : response}
     except Exception as e:
         return {"resultCode": 500, "data": str(e)}
 
