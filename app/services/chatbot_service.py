@@ -54,7 +54,7 @@ async def divideChunk(request: chatbot_schema.DivideChunkRequest):
 
 async def useChatbot(request: chatbot_schema.UseChatbotRequest):
 
-    task =  "Answer the following question based on the provided texts:\n\n"
+    task =  "Answer the following questions in Korean based on the text provided:\n\n"
     # return chunk data 해주기
     try:
         res = chunkCollection.generate.near_text(
