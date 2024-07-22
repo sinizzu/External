@@ -31,9 +31,8 @@ class Settings:
     MY_IP = os.getenv("MY_IP")
     
 
-    # JWT 설정
-    #JWT_SECRET_KEY: str = os.getenv("JWT_SECRET_KEY")
-    #JWT_ALGORITHM: str = "HS256"
+    # SUBFASTAPI
+    SUBFASTAPI_URL: str = os.getenv("SUBFASTAPI_URL")
 
     # 애플리케이션 모드
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")

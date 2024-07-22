@@ -13,6 +13,7 @@ WORKDIR /app
 RUN apt-get update \
     && apt-get install -y build-essential
 RUN pip install --upgrade pip
+RUN sudo apt-get install poppler-utils
 
 
 # 애플리케이션 코드 복사

@@ -9,6 +9,12 @@ from app.db.weaviate_utils import compareId, saveToWeaviate, getTextsById, getAl
 from app.services.paper_service import getObjectId
 from app.db.connect_db import get_weaviate_client 
 from weaviate.classes.query import Filter
+from app.core.config import settings
+import requests
+
+
+
+SUBFASTAPI_URL = settings.SUBFASTAPI_URL
 
 client = get_weaviate_client()
 pdfCollection = client.collections.get("pdf")
@@ -50,16 +56,22 @@ async def uploadData(pdfId: str = Form(None), pdfUrl: str = Form(None)):
 
         print(f"Received pdfUrl: {pdfUrl}, pdfId: {pdfId}")
         pdfStreamData = None
+        
+        
+        
         check = pdfCollection.query.fetch_objects(
             filters=Filter.by_property("pdf_id").equal(pdfId),
             limit=1)
+        
         if check.objects : 
             fullTxt = check.objects[0].properties.get("full_text")
             pdfId = check.objects[0].properties.get("pdf_id")
+            language = check.objects[0].properties.get("language")
             
             data = {
                 "pdf_id": pdfId,
-                "full_text" : fullTxt
+                "full_text" : fullTxt,
+                "language" : language
             } 
             return {"resultCode": 200, "data": data}
         else : 
@@ -69,12 +81,19 @@ async def uploadData(pdfId: str = Form(None), pdfUrl: str = Form(None)):
             jpgImgData = pdfStreamToJpg(pdfStreamData)
             # 이미지 데이터를 텍스트로 변환
             extractedData = imageToText(jpgImgData)
-            # Weaviate 컬렉션 확인 및 저장
+
+            full_text = extractedData.get("texts")
             
+            response = requests.post(f"{SUBFASTAPI_URL}/checkLanguage", json={"text": full_text[:100]})
+
+            language = response.json().get("lang")
+
+            # Weaviate 컬렉션 확인 및 저장            
             data = {
                         "pdf_id": pdfId,
-                        "full_text": extractedData.get("texts"),
-                        "pdf_link": pdfLink
+                        "full_text": full_text,
+                        "pdf_link": pdfLink,
+                        "language": language
                     }
             with pdfCollection.batch.dynamic() as batch:
                 batch.add_object(
