@@ -39,9 +39,10 @@ async def divideChunk(request: chatbot_schema.DivideChunkRequest):
     if check.objects:
         return {"resultCode": 201, "data": "chunk data already exists"}
     else:
+        chunked_text = create_chunks(request.fullText, 1000, 200)
         try:
             with chunkCollection.batch.dynamic() as batch:
-                for i, chunk in enumerate(request.fullText):
+                for i, chunk in enumerate(chunked_text):
 
                     data_properties = {
                         "pdf_id": request.pdfId, 
