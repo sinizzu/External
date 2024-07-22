@@ -21,5 +21,5 @@ async def search(request: SearchRequest):
 @router.get('/wikiSearch')
 # 첫번째줄에 fastapi의 Query를 선언해주어서 api에서 입력받을때 값 입력받을수 있음
 # 예시로 localhost:3000/search/wikiSearch?keyword=BERT 이런식으로 던져짐
-async def wiki_search(keyword: str = Query(...)):
-    return keyword_extract_service.wiki_search(keyword)
+async def wiki_search(keyword: str, lang: str):
+    return keyword_extract_service.wiki_search(keyword, lang)
