@@ -43,7 +43,7 @@ client.collections.create(
         wc.Property(name="full_text", data_type=wc.DataType.TEXT),  # Full text from OCR
         wc.Property(name="trans_summary", data_type=wc.DataType.TEXT),
         wc.Property(name="summary", data_type=wc.DataType.TEXT),
-    
+        wc.Property(name="language", data_type=wc.DataType.TEXT)
     ]
  )
 
