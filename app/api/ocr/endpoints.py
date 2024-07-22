@@ -84,7 +84,7 @@ async def uploadData(pdfId: str = Form(None), pdfUrl: str = Form(None)):
 
             full_text = extractedData.get("texts")
             
-            response = requests.post(f"{SUBFASTAPI_URL}/checkLanguage", json={"text": full_text[:100]})
+            response = requests.post(f"{SUBFASTAPI_URL}/api/translate/checkLanguage", json={"text": full_text[:100]})
 
             language = response.json().get("lang")
 
