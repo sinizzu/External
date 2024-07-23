@@ -31,10 +31,11 @@ if client.is_ready():
 else:
     print("Weaviate Cloud에 연결할 수 없습니다.")
 
-query = "Describe the five main linguistic tasks mentioned here, which are fully linguistically synchronized and improved goals based on syntax and semantic components"
-task =  "Answer the following question based on the provided texts:\n\n"
-chunkCollection = client.collections.get("chunk_pdf")
-pdf_id = "ea1cc84c-fd0d-4c5e-9e14-bf5fad2fd042"
+# query = "Describe the five main linguistic tasks mentioned here, which are fully linguistically synchronized and improved goals based on syntax and semantic components"
+query = "Tell me more about the POS tag mentioned here"
+task =  f"Please refer to the text given as an answer to {query} and answer it in Korean:\n\n"
+chunkCollection = client.collections.get("chunk_en_pdf")
+pdf_id = "2dedfe6c-8d25-4a5d-a0ed-f58d72856a3d"
 
 
 res = chunkCollection.generate.near_text(
@@ -43,7 +44,8 @@ res = chunkCollection.generate.near_text(
     ),
     query=query,
     limit=5,
-    grouped_task=task
+    grouped_task=task,
+    grouped_properties=["chunk_text"]
 )
 
 print(res.generated)

@@ -71,7 +71,7 @@ async def useChatbot(request: chatbot_schema.UseChatbotRequest):
     else:
         return {"resultCode": 400, "data": "Invalid input: language must be 'en' or 'kr'"}
 
-    task =  "Answer the following questions in Korean based on the text provided:\n\n"
+    task =  f"Please refer to the text given as an answer to '{request.query}' and answer it in Korean:\n\n"
     # return chunk data 해주기
     try:
         res = chunkCollection.generate.near_text(
@@ -80,7 +80,8 @@ async def useChatbot(request: chatbot_schema.UseChatbotRequest):
             ),
             query=request.query,
             limit=5,
-            grouped_task=task
+            grouped_task=task,
+            grouped_properties=["chunk_text"]
         )
 
         return {"resultCode": 200, "data": res.generated}
