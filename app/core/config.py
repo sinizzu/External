@@ -18,6 +18,7 @@ class Settings:
     HUGGINGFACE_API_KEY: str = os.getenv("HUGGINGFACE_API_KEY")
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
     TEXTRAZOR_API_KEY: str = os.getenv("TEXTRAZOR_API_KEY")
+    DEEPL_AUTH_KEY: str = os.getenv("DEEPL_AUTH_KEY")
     
     # google search 설정
     API_KEY = os.getenv("CUSTOM_SEARCH_API")
