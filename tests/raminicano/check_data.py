@@ -32,10 +32,11 @@ else:
     print("Weaviate Cloud에 연결할 수 없습니다.")
 
 
-chunkCollection = client.collections.get("chunk_pdf")
+chunkCollection = client.collections.get("chunk_ko_pdf")
 
 
-response = chunkCollection.query.fetch_objects()
+# response = chunkCollection.query.fetch_objects(filters=Filter.by_property("pdf_id").equal("a0f1e14a-34dc-4b38-abe9-1d063beeea32.pdf"), limit=200)
+response = chunkCollection.query.fetch_objects(limit=200)
 
 for o in response.objects:
     print(o.properties)

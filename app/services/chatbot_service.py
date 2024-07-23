@@ -5,7 +5,7 @@ from app.schemas import chatbot as chatbot_schema
 
 
 client = get_weaviate_client()
-kochunkCollection = client.collections.get("chunk_ko_pdf")
+krchunkCollection = client.collections.get("chunk_kr_pdf")
 enchunkCollection = client.collections.get("chunk_en_pdf")
 
 
@@ -28,7 +28,7 @@ async def divideChunk(request: chatbot_schema.DivideChunkRequest):
     if language == "en":
          chunkCollection = enchunkCollection
     elif language == "kr":
-        chunkCollection = kochunkCollection
+        chunkCollection = krchunkCollection
     else:
         return {"resultCode": 400, "data": "Invalid input: language must be 'en' or 'kr'"}
     
@@ -67,7 +67,7 @@ async def useChatbot(request: chatbot_schema.UseChatbotRequest):
     if language == "en":
         chunkCollection = enchunkCollection
     elif language == "kr":
-        chunkCollection = kochunkCollection
+        chunkCollection = krchunkCollection
     else:
         return {"resultCode": 400, "data": "Invalid input: language must be 'en' or 'kr'"}
 

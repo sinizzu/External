@@ -33,7 +33,7 @@ else:
 
 # 컬렉션 생성
 chunks = client.collections.create(
-    name="chunk_ko_pdf",
+    name="chunk_kr_pdf",
     vectorizer_config=Configure.Vectorizer.text2vec_huggingface(model="jhgan/ko-sroberta-multitask"),
     properties=[
         wc.Property(name="pdf_id", data_type=wc.DataType.TEXT, skip_vectorization=True),
@@ -46,7 +46,7 @@ chunks = client.collections.create(
 
 # 스키마 생성 확인
 print("chunk_ko_pdf 컬렉션이 성공적으로 생성되었습니다.")
-collection = client.collections.get("chunk_ko_pdf")
+collection = client.collections.get("chunk_kr_pdf")
 print(collection)
 
 client.close()
