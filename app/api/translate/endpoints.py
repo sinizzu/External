@@ -36,7 +36,7 @@ async def transelateSummary(pdf_id: str):
         if res.get("resultCode") == 200:
             save = weaviate_service.transSave(pdf_id, text)
             print(save)
-            return {"resultCode": 200, "data": text}
+            return {"resultCode": 200, "summary": text}
         else:
             print("summaryTranslate error")
     except Exception as e:
