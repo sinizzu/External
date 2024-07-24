@@ -34,6 +34,8 @@ class Settings:
 
     # SUBFASTAPI
     SUBFASTAPI_URL: str = os.getenv("SUBFASTAPI_URL")
+    # MAINFASTAPI
+    MAINFASTAPI: str = os.getenv("MAINFASTAPI")
 
     # 애플리케이션 모드
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")

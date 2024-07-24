@@ -10,10 +10,10 @@ import os
 JH_IP = settings.JH_IP
 YJ_IP = settings.YJ_IP
 HJ_IP = settings.HJ_IP
-CY_IP = settings.CY_IP
 
-MainFastAPI = os.getenv("MainFastAPI")
-MainFrontend = os.getenv("MainFrontend")
+
+# MainFastAPI = os.getenv("MainFastAPI")
+# MainFrontend = os.getenv("MainFrontend")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -23,7 +23,8 @@ app = FastAPI(
 # CORS 설정 추가
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000","http://localhost:8500", f"http://{JH_IP}", f"http://{YJ_IP}:8500", f"http://{HJ_IP}", f"http://{CY_IP}", MainFastAPI, MainFrontend],  # 모든 도메인에서 오는 요청을 허용합니다. 실제로는 필요한 도메인만 허용하도록 변경해야 합니다.
+    allow_origins=["http://localhost:8000","http://localhost:8500", f"http://{JH_IP}:8500", f"http://{YJ_IP}:8500", f"http://{HJ_IP}:8500"],  
+    
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,6 +40,7 @@ app.include_router(chatbot_endpoints.router, prefix="/api/chatbot", tags=["chatb
 app.include_router(topic_endpoints.router, prefix="/api/topic", tags=["topic"])
 app.include_router(translate_endpoints.router, prefix="/api/translate", tags=["translate"])
 app.include_router(weaviate_endpoints.router, prefix="/api/weaviate", tags=["weaviate"])
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=3000)

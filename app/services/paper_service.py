@@ -33,6 +33,12 @@ def getMeta(searchword: str = Query(..., description="Search term for arXiv API"
         for entry in feed.entries:
             link = entry.links[0]['href'] if entry.links else None
             pdf_link = entry.links[1]['href'] if len(entry.links) > 1 else None
+            
+            if pdf_link:
+                # 정규표현식을 사용하여 'abs'를 'pdf'로 변경
+                pdf_link = re.sub(r'/abs/', '/pdf/', pdf_link)
+
+            
             category = entry.arxiv_primary_category['term'] if 'arxiv_primary_category' in entry else None
 
             paper = {

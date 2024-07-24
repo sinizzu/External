@@ -11,11 +11,12 @@ from app.db.connect_db import get_weaviate_client
 from weaviate.classes.query import Filter
 from app.core.config import settings
 import requests
+from app.services.transelate_service import korCheck
 
 
 
 SUBFASTAPI_URL = settings.SUBFASTAPI_URL
-
+MAINFASTAPI= settings.MAINFASTAPI
 client = get_weaviate_client()
 pdfCollection = client.collections.get("pdf")
 
@@ -48,6 +49,7 @@ async def deleteData(title: str):
         print(f"Error in /deleteData: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
+@router.post("/ocr")
 @router.post("/ocrTest")
 async def uploadData(pdfId: str = Form(None), pdfUrl: str = Form(None)):
     try:
@@ -84,9 +86,9 @@ async def uploadData(pdfId: str = Form(None), pdfUrl: str = Form(None)):
 
             full_text = extractedData.get("texts")
             
-            response = requests.post(f"{SUBFASTAPI_URL}/api/translate/checkLanguage", json={"text": full_text[:100]})
-
-            language = response.json().get("lang")
+            # response = requests.post(f"{MAINFASTAPI}/api/translate/checkLanguage", json={"text": full_text[:100]})
+            response = korCheck(full_text[:100])
+            language = response.get("lang")
 
             # Weaviate 컬렉션 확인 및 저장            
             data = {
