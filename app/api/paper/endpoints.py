@@ -15,11 +15,29 @@ async def save_wea(meta_response: paper_schema.MetaResponse):
 
 @router.get("/searchKeyword")
 async def search_keyword(searchword: str):
-    return paper_service.searchKeyword(searchword)
+    response = paper_service.searchKeyword(searchword)
+    if response.get("resultCode") == 200:
+        return response
+    else:
+        res = paper_service.getMeta(searchword)
+        res = paper_schema.MetaResponse(**res)
+        response = await paper_service.saveWea(res)
+        response = paper_service.searchKeyword(searchword)
+        return response 
 
 @router.get('/searchColl')
 async def getColl(searchword: str):
-    return await paper_service.getColl(searchword)    
+    response = await paper_service.getColl(searchword)
+    if response.get("resultCode") == 200:
+        return response
+    else:
+        keywords = paper_service.extract_keywords(searchword)
+        for keyword in keywords:
+            res= paper_service.getMeta(keyword)
+            res = paper_schema.MetaResponse(**res)
+            response = await paper_service.saveWea(res)
+        response = await paper_service.getColl(searchword)
+        return response    
 
 @router.get('/searchDBpia')
 async def trendKeywords():

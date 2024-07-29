@@ -7,11 +7,17 @@ import requests
 from weaviate.classes.query import Filter, MetadataQuery
 import re
 from bs4 import BeautifulSoup
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 import warnings
 
 client = get_weaviate_client()
 paperCollection = client.collections.get("paper")
+
+nltk.download('punkt')
+nltk.download('stopwords')
 
 # 경고 메시지 무시
 warnings.filterwarnings("ignore", category=FutureWarning, module='huggingface_hub')
@@ -101,7 +107,7 @@ def searchKeyword(searchword: str = Query(..., description="Search term for Weav
     try:
         response = paperCollection.query.bm25(
             query=searchword,
-            return_metadata=MetadataQuery(score=True),
+            return_metadata=MetadataQuery(score=True, explain_score=True),
             query_properties=["title", "authors", "abstract"],
             limit=10
         )
@@ -111,6 +117,7 @@ def searchKeyword(searchword: str = Query(..., description="Search term for Weav
         if response.objects:
             for obj in response.objects:
                 properties = obj.properties
+                score = obj.metadata.score
                 # Extract relevant properties
                 title = properties.get("title")
                 authors = properties.get("authors")
@@ -121,7 +128,7 @@ def searchKeyword(searchword: str = Query(..., description="Search term for Weav
                 abstract = properties.get("abstract")
                 
                 res.append({
-                    "title": title, "authors": authors, "category": category, "published": published,
+                    "score": score, "title": title, "authors": authors, "category": category, "published": published,
                     "direct_link": direct_link, "pdf_link": pdf_link, "abstract": abstract
                 })
             return {"resultCode" : 200, "data" : res}
@@ -135,6 +142,7 @@ async def getColl(searchword: str):
     try: 
         response = paperCollection.query.near_text(
             query=searchword,
+            return_metadata=MetadataQuery(distance=True),
             limit=10
         )
         res = []
@@ -142,20 +150,26 @@ async def getColl(searchword: str):
         if response.objects:
             for obj in response.objects:
                 properties = obj.properties
-                # Extract relevant properties
-                title = properties.get("title")
-                authors = properties.get("authors")
-                category = properties.get("category")
-                published = properties.get("published")
-                direct_link = properties.get("direct_link")
-                pdf_link = properties.get("pdf_link")
-                abstract = properties.get("abstract")
+                distance = obj.metadata.distance
+                if distance == 0:
+                    return {"resultCode" : 400, "data" : "score too low"}
+                else:
+                    # Extract relevant properties
+                    title = properties.get("title")
+                    authors = properties.get("authors")
+                    category = properties.get("category")
+                    published = properties.get("published")
+                    direct_link = properties.get("direct_link")
+                    pdf_link = properties.get("pdf_link")
+                    abstract = properties.get("abstract")
                 
-                res.append({
-                    "title": title, "authors": authors, "category": category, "published": published,
-                    "direct_link": direct_link, "pdf_link": pdf_link, "abstract": abstract
-                })
-            return {"resultCode" : 200, "data" : res}
+                    res.append({
+                        "score": distance, "title": title, "authors": authors, "category": category, "published": published,
+                        "direct_link": direct_link, "pdf_link": pdf_link, "abstract": abstract
+                    })
+                if len(res[0]) < 5:
+                    return {"resultCode" : 401, "data" : "length too short"}
+                return {"resultCode" : 200, "data" : res}
         else:
             return {"resultCode" : 400, "data" : response}
     except Exception as e:
@@ -259,3 +273,13 @@ async def searchPopularKeyword():
     else:
         return {"resultCode" : 400, "data" : results}
     
+
+def extract_keywords(text: str):
+    # 토큰화
+    words = word_tokenize(text)
+    
+    # 불용어 제거
+    stop_words = set(stopwords.words('english'))
+    filtered_words = [word for word in words if word.lower() not in stop_words and word.isalpha()]
+    print(filtered_words)
+    return filtered_words
