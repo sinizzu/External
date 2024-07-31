@@ -1,25 +1,25 @@
-# 베이스 이미지 선택
-FROM python:3.9-slim
+# 베이스 이미지로 Python 사용
+FROM python:3.9.7
 
-# 환경 변수 설정
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# step 2 : Package Install
+RUN apt-get update && apt-get -y upgrade && apt-get -y install git net-tools vim
 
 # 작업 디렉토리 설정
-WORKDIR /app
+WORKDIR /root
 
-# 시스템 패키지 설치
-# 시스템 패키지 설치
-RUN apt-get update \
-    && apt-get install -y build-essential
-RUN pip install --upgrade pip
-RUN sudo apt-get install poppler-utils
-
+# 의존성 설치
+RUN mkdir /root/External
+WORKDIR /root/External
 
 # 애플리케이션 코드 복사
-COPY app/ /app/app/
-COPY ocr_key.json /app/
-COPY requirements.txt /app/
+COPY app/ ./app/
+COPY ocr_key.json .
+COPY requirements.txt .
+
+# 가상 환경 생성 및 패키지 설치
+RUN python3.9 -m venv .venv
+RUN . .venv/bin/activate
+RUN pip install -r requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt
 

@@ -1,13 +1,13 @@
 all: build run
 stop: rm rmi
 build:
-	docker build --no-cache -t mainfastapi .
+	docker-compose up --build
 run:
-	docker run -it -d -p 3000:3000 --name mainfastapi --env-file .env mainfastapi
+	docker run -it -d -p 3500:3500 --name external --env-file .env external
 exec:
-	docker exec -it mainfastapi /bin/bash
+	docker exec -it external /bin/bash
 logs:
-	docker logs mainfastapi
+	docker logs external
 ps:
 	docker ps -a
 img:
@@ -16,3 +16,9 @@ rm:
 	docker rm -f $$(docker ps -aq)
 rmi:
 	docker rmi -f $$(docker images -q)
+tag:
+	docker tag external wjdguswn1203/external:latest
+push:
+	docker push wjdguswn1203/external:latest
+pull:
+	docker pull wjdguswn1203/external:latest
