@@ -10,4 +10,3 @@ __pycache__
 # Ignore OCR key files
 **/ocr_key.json
 
-.github/workflows/deploy.yml
