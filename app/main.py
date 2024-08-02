@@ -10,6 +10,7 @@ import os
 JH_IP = settings.JH_IP
 YJ_IP = settings.YJ_IP
 HJ_IP = settings.HJ_IP
+# MT_IP = settings.MT_IP
 
 
 # MainFastAPI = os.getenv("MainFastAPI")
@@ -23,8 +24,8 @@ app = FastAPI(
 # CORS 설정 추가
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000","http://localhost:8500", f"http://{JH_IP}:8500", f"http://{YJ_IP}:8500", f"http://{HJ_IP}:8500"],  
-    
+    # allow_origins=["http://localhost:8000","http://localhost:8500", f"http://{JH_IP}:8500", f"http://{YJ_IP}:8500", f"http://{HJ_IP}:8500", ],  
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
