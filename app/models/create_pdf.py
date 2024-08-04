@@ -38,7 +38,7 @@ client.collections.create(
     properties=[
         wc.Property(name="pdf_id", data_type=wc.DataType.TEXT),  # S3 ID or Paper collection object ID
         wc.Property(name="pdf_link", data_type=wc.DataType.TEXT),  # Direct link to the PDF
-        wc.Property(name="pre_image", data_type=wc.DataType.BLOB),  # Thumbnail image as blob
+        # wc.Property(name="pre_image", data_type=wc.DataType.BLOB),  # Thumbnail image as blob
         wc.Property(name="keywords", data_type=wc.DataType.TEXT_ARRAY),  # Extracted keywords
         wc.Property(name="full_text", data_type=wc.DataType.TEXT),  # Full text from OCR
         wc.Property(name="trans_summary", data_type=wc.DataType.TEXT),
