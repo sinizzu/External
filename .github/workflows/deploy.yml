@@ -9,6 +9,9 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    env:
+      OCR_KEY_JSON: ${{ secrets.OCR_KEY_JSON }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -28,5 +31,4 @@ jobs:
         context: .
         push: true
         tags: wjdguswn1203/external:latest
-        build-args: 
-          OCR_KEY_JSON: ${{ secrets.OCR_KEY_JSON }}
+        build-args: OCR_KEY_JSON=$OCR_KEY_JSON
