@@ -86,4 +86,7 @@ async def useChatbot(request: chatbot_schema.UseChatbotRequest):
 
         return {"resultCode": 200, "data": res.generated}
     except Exception as e:
+        error_message = str(e)
+        if "status: 503" in error_message :
+            return {"resultCode": 503, "data": "다시 질문해주세요."}
         return {"resultCode": 500, "data": str(e)}
