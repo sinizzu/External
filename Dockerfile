@@ -11,9 +11,12 @@ WORKDIR /root
 RUN mkdir /root/External
 WORKDIR /root/External
 
+# 환경 변수로부터 ocr_key.json 파일 생성
+ARG OCR_KEY_JSON
+RUN echo "$OCR_KEY_JSON" > ocr_key.json
+
 # 애플리케이션 코드 복사
 COPY app/ ./app/
-COPY ocr_key.json .
 COPY requirements.txt .
 
 # 가상 환경 생성 및 패키지 설치

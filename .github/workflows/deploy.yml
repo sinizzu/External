@@ -28,3 +28,5 @@ jobs:
         context: .
         push: true
         tags: wjdguswn1203/external:latest
+        build-args: 
+          OCR_KEY_JSON: ${{ secrets.OCR_KEY_JSON }}
