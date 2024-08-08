@@ -12,8 +12,8 @@ RUN mkdir /root/External
 WORKDIR /root/External
 
 # 환경 변수로부터 ocr_key.json 파일 생성
-ARG OCR_KEY_JSON
-RUN echo "$OCR_KEY_JSON" > /root/External/ocr_key.json
+COPY ocr_key.json /root/External/ocr_key.json
+
 
 # 애플리케이션 코드 복사
 COPY app/ ./app/
@@ -27,4 +27,4 @@ RUN pip install -r requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # uvicorn을 사용하여 FastAPI 애플리케이션 실행
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["uvicorn", "app.main:app", "—host", "0.0.0.0", "—port", "3000"]
