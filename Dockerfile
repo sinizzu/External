@@ -2,7 +2,7 @@
 FROM python:3.9.7
 
 # step 2 : Package Install
-RUN apt-get update && apt-get -y upgrade && apt-get -y install git net-tools vim
+RUN apt-get update && apt-get -y upgrade && apt-get -y install git net-tools vim poppler-utils
 
 # 작업 디렉토리 설정
 WORKDIR /root
