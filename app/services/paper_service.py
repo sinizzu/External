@@ -113,27 +113,40 @@ def searchKeyword(searchword: str = Query(..., description="Search term for Weav
         )
         res = []
         # 오브젝트가 있으면
-        # 오브젝트가 있으면
         if response.objects:
             for obj in response.objects:
                 properties = obj.properties
                 score = obj.metadata.score
-                # Extract relevant properties
-                title = properties.get("title")
-                authors = properties.get("authors")
-                category = properties.get("category")
-                published = properties.get("published")
-                direct_link = properties.get("direct_link")
-                pdf_link = properties.get("pdf_link")
-                abstract = properties.get("abstract")
+                if score == 0:
+                    return {"resultCode": 400, "data": "score too low"}
+                else:
+                    # Extract relevant properties
+                    title = properties.get("title")
+                    authors = properties.get("authors")
+                    category = properties.get("category")
+                    published = properties.get("published")
+                    direct_link = properties.get("direct_link")
+                    pdf_link = properties.get("pdf_link")
+                    abstract = properties.get("abstract")
                 
-                res.append({
-                    "score": score, "title": title, "authors": authors, "category": category, "published": published,
-                    "direct_link": direct_link, "pdf_link": pdf_link, "abstract": abstract
-                })
-            return {"resultCode" : 200, "data" : res}
+                    res.append({
+                        "score": score,
+                        "title": title,
+                        "authors": authors,
+                        "category": category,
+                        "published": published,
+                        "direct_link": direct_link,
+                        "pdf_link": pdf_link,
+                        "abstract": abstract
+                    })
+                    print(res)
+            
+            # 결과의 길이를 검사하여 충분한지 확인
+            if len(res) < 5:
+                return {"resultCode": 401, "data": "length too short"}
+            return {"resultCode": 200, "data": res}
         else:
-            return {"resultCode" : 400, "data" : response}
+            return {"resultCode": 400, "data": response}
     except Exception as e:
         return {"resultCode": 500, "data": str(e)}
 
