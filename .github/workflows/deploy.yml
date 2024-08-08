@@ -23,8 +23,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Create Cypress config JSON
-        run: |
-          echo ${{ secrets.OCR_KEY_JSON }} | base64 -d > ocr_key.json
+        run: echo ${{ secrets.OCR_KEY_JSON }} | base64 -d > ocr_key.json
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
