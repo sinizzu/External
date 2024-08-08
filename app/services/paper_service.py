@@ -139,7 +139,7 @@ def searchKeyword(searchword: str = Query(..., description="Search term for Weav
 
 # 구어체 기반 weaviate 검색 
 async def getColl(searchword: str):
-    try: 
+    try:
         response = paperCollection.query.near_text(
             query=searchword,
             return_metadata=MetadataQuery(distance=True),
@@ -152,7 +152,7 @@ async def getColl(searchword: str):
                 properties = obj.properties
                 distance = obj.metadata.distance
                 if distance == 0:
-                    return {"resultCode" : 400, "data" : "score too low"}
+                    return {"resultCode": 400, "data": "score too low"}
                 else:
                     # Extract relevant properties
                     title = properties.get("title")
@@ -164,16 +164,26 @@ async def getColl(searchword: str):
                     abstract = properties.get("abstract")
                 
                     res.append({
-                        "score": distance, "title": title, "authors": authors, "category": category, "published": published,
-                        "direct_link": direct_link, "pdf_link": pdf_link, "abstract": abstract
+                        "score": distance,
+                        "title": title,
+                        "authors": authors,
+                        "category": category,
+                        "published": published,
+                        "direct_link": direct_link,
+                        "pdf_link": pdf_link,
+                        "abstract": abstract
                     })
-                if len(res[0]) < 5:
-                    return {"resultCode" : 401, "data" : "length too short"}
-                return {"resultCode" : 200, "data" : res}
+                    print(res)
+            
+            # 결과의 길이를 검사하여 충분한지 확인
+            if len(res) < 5:
+                return {"resultCode": 401, "data": "length too short"}
+            return {"resultCode": 200, "data": res}
         else:
-            return {"resultCode" : 400, "data" : response}
+            return {"resultCode": 400, "data": response}
     except Exception as e:
         return {"resultCode": 500, "data": str(e)}
+
 
 
 # dbpia 인기키워드 검색

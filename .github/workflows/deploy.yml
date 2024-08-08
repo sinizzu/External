@@ -9,10 +9,14 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
-    env:
-      OCR_KEY_JSON: ${{ secrets.OCR_KEY_JSON }}
-
     steps:
+    - name: Create JSON file
+      id: create-json
+      uses: jsdaniell/create-json@1.1.2
+      with:
+        name: "ocr_key.json"
+        json: ${{ secrets.OCR_KEY_JSON }}
+
     - name: Checkout code
       uses: actions/checkout@v2
 
@@ -31,4 +35,6 @@ jobs:
         context: .
         push: true
         tags: wjdguswn1203/external:latest
-        build-args: OCR_KEY_JSON=$OCR_KEY_JSON
+    
+    - name: Verify JSON format
+      run: cat ocr_key.json | jq .
