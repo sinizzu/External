@@ -13,7 +13,7 @@ WORKDIR /root/External
 
 # 환경 변수로부터 ocr_key.json 파일 생성
 ARG OCR_KEY_JSON
-RUN echo "$OCR_KEY_JSON" > ocr_key.json
+RUN echo "$OCR_KEY_JSON" > /root/External/ocr_key.json
 
 # 애플리케이션 코드 복사
 COPY app/ ./app/
